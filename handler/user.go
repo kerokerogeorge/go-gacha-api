@@ -56,7 +56,7 @@ func GetUser(c *gin.Context) {
 		panic(err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": user})
+	c.JSON(http.StatusOK, gin.H{"name": user.Name})
 }
 
 // ユーザ情報更新API
@@ -84,7 +84,7 @@ func UpdateUser(c *gin.Context) {
 		panic(db.Error)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": user})
+	c.JSON(http.StatusOK, gin.H{"data": user.Name})
 }
 
 // ============
