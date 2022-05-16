@@ -34,10 +34,10 @@ $ curl -X PATCH http://localhost:8000/user/update -H "x-token: 01dd4bd0-b72a-488
 ```
 
 ### ガチャの実行
-ユーザー作成時に取得したTOKENをHEADERにセットし、リクエストを送信
+ユーザー作成時に取得したTOKENをHEADERにセット、ガチャを引きたい回数分BODYに値をセットし、リクエストを送信
 ```
-$ curl -X POST http://localhost:8000/gacha/draw -H "x-token: 01dd4bd0-b72a-4885-94cb-a338aa6f7466"
-###-> {"data":{"id":"2","name":"kimori","emissionRate":20,"createdAt":"2022-05-06T07:11:20Z","updatedAt":"2022-05-06T07:11:20Z"}}
+$ curl -X POST http://localhost:8000/gacha/draw -H "x-token: 01dd4bd0-b72a-4885-94cb-a338aa6f7466" -d '{"times": 3 }'
+###-> {"results":[{"characterId":"2","name":"kimori"},{"characterId":"4","name":"mizugoro"},{"characterId":"2","name":"kimori"}]}
 ```
 
 ### ユーザーが保有しているキャラクターの一覧取得
