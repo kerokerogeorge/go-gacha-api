@@ -7,7 +7,7 @@ docker hub の公式ページでインストーラーがダウンロードでき
 ## SETUP
 
 ```
-$ cd go-test-prod/   # ディレクトリへ移動
+$ cd go-gacha-api/   # ディレクトリへ移動
 $ docker-compose up  # 移動したディレクトリでコンテナの起動
 ```
 [注意]
