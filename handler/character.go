@@ -7,8 +7,8 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
-	database "github.com/kerokerogeorge/go-test-prod/database"
-	"github.com/kerokerogeorge/go-test-prod/model"
+	database "github.com/kerokerogeorge/go-gacha-api/database"
+	"github.com/kerokerogeorge/go-gacha-api/model"
 )
 
 type UpdateCharacterRequest struct {
