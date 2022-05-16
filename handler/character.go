@@ -21,7 +21,7 @@ type ResultCharacterResponse struct {
 	Name string `json:"name"`
 }
 type GachaRequest struct {
-	DrawCount int `json:"drawCount"`
+	Times int `json:"times"`
 }
 
 type GachaResultResponse struct {
@@ -57,7 +57,7 @@ func GetCharacter(c *gin.Context) {
 
 	var selectedCharacterId int
 	results := []GachaResultResponse{}
-	for i := 0; i < req.DrawCount; i++ {
+	for i := 0; i < req.Times; i++ {
 		selectedCharacterId = DrawGacha(characters)
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
 		character := PickCharacter(selectedCharacterId)
