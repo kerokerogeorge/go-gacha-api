@@ -15,6 +15,7 @@ services:
       - db
   db:
     container_name: db
+    platform: linux/x86_64 # M1チップ対応
     image: mysql:5.7
     restart: always
     env_file:
