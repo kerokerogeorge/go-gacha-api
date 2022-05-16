@@ -29,7 +29,6 @@ func CreateUser(c *gin.Context) {
 
 	token, err := uuid.NewRandom()
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		log.Println(err, gin.H{"error": err})
 		return
 	}
@@ -52,7 +51,7 @@ func GetUser(c *gin.Context) {
 	}
 
 	if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Authentication failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
 		panic(err)
 	}
 
@@ -69,7 +68,7 @@ func UpdateUser(c *gin.Context) {
 	}
 
 	if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Authentication failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
 		panic(err)
 	}
 
@@ -99,11 +98,6 @@ func GetUsers(c *gin.Context) {
 		panic(err)
 	}
 
-	if len(users) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"data": "No user exists"})
-		return
-	}
-
 	c.JSON(http.StatusOK, gin.H{"data": users})
 }
 
@@ -118,7 +112,7 @@ func DeleteUser(c *gin.Context) {
 	}
 
 	if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Authentication failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
 		panic(err)
 	}
 

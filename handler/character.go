@@ -4,7 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"net/http"
-	"strconv"
+	"sort"
 
 	"github.com/gin-gonic/gin"
 	database "github.com/kerokerogeorge/go-test-prod/database"
@@ -20,12 +20,25 @@ type ResultCharacterResponse struct {
 	ID   string `json:"characterId"`
 	Name string `json:"name"`
 }
+type GachaRequest struct {
+	DrawCount int `json:"drawCount"`
+}
+
+type GachaResultResponse struct {
+	ID   string `json:"characterId"`
+	Name string `json:"name"`
+}
 
 // ガチャ実行API
 func GetCharacter(c *gin.Context) {
 	var characters []model.Character
-	var character model.Character
 	var user model.User
+	var req GachaRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
@@ -34,7 +47,7 @@ func GetCharacter(c *gin.Context) {
 	}
 
 	if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Authentication failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
 		panic(err)
 	}
 
@@ -42,8 +55,36 @@ func GetCharacter(c *gin.Context) {
 		panic(err)
 	}
 
+	var selectedCharacterId int
+	results := []GachaResultResponse{}
+	for i := 0; i < req.DrawCount; i++ {
+		selectedCharacterId = DrawGacha(characters)
+		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
+		character := PickCharacter(selectedCharacterId)
+
+		result := model.Result{UserId: user.ID, CharacterId: character.ID}
+		db := database.DB.Table("user_characters").Create(&result)
+		if db.Error != nil {
+			panic(db.Error)
+		}
+
+		res := GachaResultResponse{ID: character.ID, Name: character.Name}
+		results = append(results, res)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"results": results})
+}
+
+func PickCharacter(selectedCharacterId int) model.Character {
+	var character model.Character
+	database.DB.Table("characters").Where("id = ?", selectedCharacterId).First(&character)
+	return character
+}
+
+func DrawGacha(characters []model.Character) int {
 	// 1〜100の範囲でランダムに値を取得
 	rand := float64(rand.Intn(100-1) - 1)
+
 	sum := 0
 	// キャラクターの排出率を合計
 	for _, v := range characters {
@@ -69,25 +110,14 @@ func GetCharacter(c *gin.Context) {
 		}
 	}
 
-	// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
-	if err := database.DB.Table("characters").Where("id = ?", strconv.Itoa(selectedCharacterId)).First(&character).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found!"})
-		panic(err)
-	}
-
-	result := model.Result{UserId: user.ID, CharacterId: character.ID}
-	db := database.DB.Table("user_characters").Create(&result)
-	if db.Error != nil {
-		panic(db.Error)
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": character})
+	// return strconv.Itoa(selectedCharacterId), nil
+	return selectedCharacterId
 }
 
 // ユーザ所持キャラクター一覧取得
 func GetCharacterList(c *gin.Context) {
 	var user model.User
-	var result []ResultCharacterResponse
+	var results []ResultCharacterResponse
 
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
@@ -104,17 +134,18 @@ func GetCharacterList(c *gin.Context) {
 		Joins("INNER JOIN user_characters ON user_characters.user_id = ?", user.ID).
 		Joins("INNER JOIN characters ON user_characters.character_id = characters.id").
 		Where("users.id = ?", user.ID).
-		Scan(&result).Error; err != nil {
+		Scan(&results).Error; err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found"})
 		panic(err)
 	}
 
-	if len(result) == 0 {
+	if len(results) == 0 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "No results"})
 		return
 	}
+	sort.Slice(results, func(i, j int) bool { return results[i].Id < results[j].Id })
 
-	c.JSON(http.StatusOK, gin.H{"characters": result})
+	c.JSON(http.StatusOK, gin.H{"characters": results})
 }
 
 // ============
