@@ -4,8 +4,8 @@ import (
 	"log"
 
 	"github.com/gin-gonic/gin"
-	database "github.com/kerokerogeorge/go-test-prod/database"
-	"github.com/kerokerogeorge/go-test-prod/handler"
+	database "github.com/kerokerogeorge/go-gacha-api/database"
+	"github.com/kerokerogeorge/go-gacha-api/handler"
 )
 
 func main() {

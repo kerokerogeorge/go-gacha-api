@@ -1,4 +1,4 @@
-module github.com/kerokerogeorge/go-test-prod
+module github.com/kerokerogeorge/go-gacha-api
 
 go 1.18
 
