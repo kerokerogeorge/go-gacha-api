@@ -7,9 +7,12 @@ docker hub の公式ページでインストーラーがダウンロードでき
 ## SETUP
 
 ```
-$ cd go-test-prod/   # ディレクトリへ移動
+$ cd go-gacha-api/   # ディレクトリへ移動
 $ docker-compose up  # 移動したディレクトリでコンテナの起動
 ```
+[注意]
+初回起動時にdbコンテナよりサーバーコンテナが立ち上がってしまうので、エラーが起こる場合があります。立ち上げ直すと正常に起動します。
+
 
 データベースのコンテナとAPI用のコンテナが起動したら準備完了です。
 
@@ -34,7 +37,7 @@ $ curl -X PATCH http://localhost:8000/user/update -H "x-token: 01dd4bd0-b72a-488
 ```
 
 ### ガチャの実行
-ユーザー作成時に取得したTOKENをHEADERにセット、ガチャを引きたい回数分BODYに値をセットし、リクエストを送信
+ユーザー作成時に取得したTOKENをHEADERにセット、ガチャを引きたい回数をBODYにセットし、リクエストを送信
 ```
 $ curl -X POST http://localhost:8000/gacha/draw -H "x-token: 01dd4bd0-b72a-4885-94cb-a338aa6f7466" -d '{"times": 3 }'
 ###-> {"results":[{"characterId":"2","name":"kimori"},{"characterId":"4","name":"mizugoro"},{"characterId":"2","name":"kimori"}]}
