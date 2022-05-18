@@ -139,10 +139,6 @@ func GetCharacterList(c *gin.Context) {
 		panic(err)
 	}
 
-	if len(results) == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "No results"})
-		return
-	}
 	sort.Slice(results, func(i, j int) bool { return results[i].Id < results[j].Id })
 
 	c.JSON(http.StatusOK, gin.H{"characters": results})
