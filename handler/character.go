@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"math"
 	"math/rand"
 	"net/http"
@@ -58,6 +59,8 @@ func GetCharacter(c *gin.Context) {
 
 	var selectedCharacterId int
 	results := []GachaResultResponse{}
+	now := time.Now()
+	time.Sleep(time.Second * 3)
 	for i := 0; i < req.Times; i++ {
 		selectedCharacterId = DrawGacha(characters)
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
@@ -72,6 +75,7 @@ func GetCharacter(c *gin.Context) {
 		res := GachaResultResponse{ID: character.ID, Name: character.Name}
 		results = append(results, res)
 	}
+	log.Println("経過: ", time.Since(now).Milliseconds())
 
 	c.JSON(http.StatusOK, gin.H{"results": results})
 }
