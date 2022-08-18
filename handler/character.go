@@ -5,6 +5,7 @@ import (
 	"math/rand"
 	"net/http"
 	"sort"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	database "github.com/kerokerogeorge/go-gacha-api/database"
@@ -77,13 +78,17 @@ func GetCharacter(c *gin.Context) {
 
 func PickCharacter(selectedCharacterId int) model.Character {
 	var character model.Character
-	database.DB.Table("characters").Where("id = ?", selectedCharacterId).First(&character)
+	if err := database.DB.Table("characters").Where("id = ?", selectedCharacterId).First(&character).Error; err != nil {
+		panic(err)
+	}
+
 	return character
 }
 
 func DrawGacha(characters []model.Character) int {
 	// 1〜100の範囲でランダムに値を取得
-	rand := float64(rand.Intn(100-1) - 1)
+	rand.Seed(time.Now().UnixNano())
+	rand := float64(rand.Intn(100-1) + 1)
 
 	sum := 0
 	// キャラクターの排出率を合計
