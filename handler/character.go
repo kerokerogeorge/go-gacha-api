@@ -39,10 +39,8 @@ type CreateCharacterRequest struct {
 	EmissionRate float64 `json:"emissionRate"`
 }
 
-type Gacha struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+type GachaListResponse struct {
+	ID string `json:"gachaId"`
 }
 
 // ガチャ実行API
@@ -182,6 +180,20 @@ func CreateGacha(c *gin.Context) {
 	log.Println("END=============")
 }
 
+func GetGachaList(c *gin.Context) {
+	var gachas []model.Gacha
+	var res []GachaListResponse
+	if err := database.DB.Find(&gachas).Error; err != nil {
+		panic(err)
+	}
+
+	for _, gacha := range gachas {
+		res = append(res, GachaListResponse{ID: gacha.ID})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": res})
+}
+
 // ============
 // 以下開発用
 // ============
@@ -225,9 +237,9 @@ func NewULID() ulid.ULID {
 	return ulid.MustNew(ulid.Timestamp(t), entropy)
 }
 
-func NewGacha() (*Gacha, error) {
+func NewGacha() (*model.Gacha, error) {
 	now := flextime.Now()
-	return &Gacha{
+	return &model.Gacha{
 		ID:        NewULID().String(),
 		CreatedAt: now,
 		UpdatedAt: now,
