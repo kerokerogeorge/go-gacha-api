@@ -167,7 +167,6 @@ func GetCharacterList(c *gin.Context) {
 
 func CreateGacha(c *gin.Context) {
 	log.Println("START=============")
-	log.Println("CALLED")
 	newGacha, err := NewGacha()
 	if err != nil {
 		panic(err)
@@ -176,8 +175,8 @@ func CreateGacha(c *gin.Context) {
 	if db.Error != nil {
 		panic(db.Error)
 	}
-	log.Println(db)
 	log.Println("END=============")
+	c.JSON(http.StatusOK, gin.H{"gachaId": newGacha.ID})
 }
 
 func GetGachaList(c *gin.Context) {
