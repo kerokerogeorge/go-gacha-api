@@ -20,6 +20,8 @@ func main() {
 
 	// 仕様書のガチャ関連API
 	r.POST("/gacha/draw", handler.GetCharacter) // ガチャ実行API
+	// 新しいAPI
+	r.POST("/gacha/create", handler.CreateGacha)
 
 	// 仕様書のキャラクター関連API
 	r.GET("/character/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API

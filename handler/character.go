@@ -8,7 +8,10 @@ import (
 	"sort"
 	"time"
 
+	"github.com/Songmu/flextime"
 	"github.com/gin-gonic/gin"
+	"github.com/oklog/ulid"
+
 	database "github.com/kerokerogeorge/go-gacha-api/database"
 	"github.com/kerokerogeorge/go-gacha-api/model"
 )
@@ -29,6 +32,17 @@ type GachaRequest struct {
 type GachaResultResponse struct {
 	ID   string `json:"characterId"`
 	Name string `json:"name"`
+}
+
+type CreateCharacterRequest struct {
+	Name         string  `json:"name"`
+	EmissionRate float64 `json:"emissionRate"`
+}
+
+type Gacha struct {
+	ID        string    `json:"id"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 // ガチャ実行API
@@ -153,6 +167,21 @@ func GetCharacterList(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"characters": results})
 }
 
+func CreateGacha(c *gin.Context) {
+	log.Println("START=============")
+	log.Println("CALLED")
+	newGacha, err := NewGacha()
+	if err != nil {
+		panic(err)
+	}
+	db := database.DB.Table("gachas").Create(&newGacha)
+	if db.Error != nil {
+		panic(db.Error)
+	}
+	log.Println(db)
+	log.Println("END=============")
+}
+
 // ============
 // 以下開発用
 // ============
@@ -188,4 +217,19 @@ func GetCharacters(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": characters})
+}
+
+func NewULID() ulid.ULID {
+	t := flextime.Now()
+	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
+	return ulid.MustNew(ulid.Timestamp(t), entropy)
+}
+
+func NewGacha() (*Gacha, error) {
+	now := flextime.Now()
+	return &Gacha{
+		ID:        NewULID().String(),
+		CreatedAt: now,
+		UpdatedAt: now,
+	}, nil
 }
