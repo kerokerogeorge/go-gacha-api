@@ -3,7 +3,6 @@ package handler
 import (
 	"math"
 
-	// "math"
 	"math/rand"
 	"net/http"
 	"sort"
@@ -108,10 +107,12 @@ func GetCharacter(c *gin.Context) {
 	var selectedCharacterId int
 	results := []GachaResultResponse{}
 
-	// 時間計測のためのAPI
-	// now := time.Now()
-	// time.Sleep(time.Second * 3)
-	// log.Println("ガチャを実行するAPI: ", req.Times)
+	/*
+			時間計測のためのAPI
+			now := time.Now()
+		  time.Sleep(time.Second * 3)
+		  log.Println("ガチャを実行するAPI: ", req.Times)
+	*/
 	for i := 0; i < req.Times; i++ {
 		selectedCharacterId = DrawGacha(charactersWithEmmitionRate)
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
