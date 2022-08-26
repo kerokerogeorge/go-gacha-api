@@ -38,7 +38,7 @@ CREATE TABLE IF NOT EXISTS user_characters
 -- 1
 CREATE TABLE IF NOT EXISTS gachas
 (
-    id             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+    id             varchar(255) NOT NULL COMMENT 'id',
     created_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
     updated_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
     PRIMARY KEY (id)
@@ -47,38 +47,16 @@ CREATE TABLE IF NOT EXISTS gachas
 -- 2
 CREATE TABLE IF NOT EXISTS character_emmition_rates
 (
-    id            big   int(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
-    gacha_id      bigint(20) NOT NULL COMMENT 'ガチャID',
+    id            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
+    gacha_id      varchar(255) NOT NULL COMMENT 'ガチャID',
     character_id  bigint(20) NOT NULL COMMENT 'キャラクターID',
-    emission_rate  bigint(20) DEFAULT NULL COMMENT '排出確率',
+    emission_rate bigint(20) DEFAULT NULL COMMENT '排出確率',
     created_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
     updated_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
     PRIMARY KEY(id),
     FOREIGN KEY(gacha_id) REFERENCES gachas (id),
     FOREIGN KEY(character_id) REFERENCES characters (id)
 );
-
--- 排出率のテーブルを分ける場合
--- CREATE TABLE IF NOT EXISTS character_emmition_rates
--- (
---     id                  bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
---     emmition_rate_id    bigint(20) NOT NULL COMMENT '排出率ID',
---     character_id        bigint(20) NOT NULL COMMENT 'キャラクターID',
---     created_at          timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
---     updated_at          timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
---     PRIMARY KEY(id),
---     FOREIGN KEY(emmition_rate_id) REFERENCES gachas (id),
---     FOREIGN KEY(character_id) REFERENCES characters (id)
--- );
-
--- CREATE TABLE IF NOT EXISTS emmition_rates
--- (
---     id             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
---     emission_rate  bigint(20) DEFAULT NULL COMMENT '排出確率',
---     created_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
---     updated_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
---     PRIMARY KEY (id)
--- );
 
 -- INSERT INTO characters (name, emission_rate, created_at, updated_at) VALUES ('pikachu', 10, NOW() , NOW());
 -- INSERT INTO characters (name, emission_rate, created_at, updated_at) VALUES ('kimori', 20, NOW() , NOW());

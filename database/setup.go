@@ -7,7 +7,6 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 	godotenv "github.com/joho/godotenv"
-	"github.com/kerokerogeorge/go-gacha-api/model"
 )
 
 var DB *gorm.DB
@@ -30,9 +29,15 @@ func DbConnect() *gorm.DB {
 	}
 
 	// database.AutoMigrate(&model.User{})
+	// database.DropTable(&model.User{})
+	// database.DropTable(&model.Character{})
+	// database.AutoMigrate(&model.Result{})
 	// database.AutoMigrate(&model.Character{})
 	// database.AutoMigrate(&model.Result{})
-	database.AutoMigrate(&model.Gacha{})
+	// database.AutoMigrate(&model.Gacha{})
+	// database.AutoMigrate(&model.CharacterEmmitionRate{})
+	// database.DropTable(&model.CharacterEmmitionRate{})
+	// database.DropTable(&model.Gacha{})
 	// database.DropTable(&model.Gacha{})
 
 	DB = database

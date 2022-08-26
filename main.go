@@ -23,6 +23,9 @@ func main() {
 	// 新しいAPI
 	r.POST("/gacha/create", handler.CreateGacha)
 	r.GET("/gacha/list", handler.GetGachaList)
+	r.GET("/character/emmition_rates", handler.GetEmmitionRate)
+	r.DELETE("/gacha", handler.DeleteGacha)
+	r.GET("/gacha", handler.GetGacha)
 
 	// 仕様書のキャラクター関連API
 	r.GET("/character/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API
@@ -32,6 +35,7 @@ func main() {
 	r.GET("/user", handler.GetUsers)                 // 全ユーザーの取得
 	r.DELETE("/user", handler.DeleteUser)            // ユーザーの削除
 	r.GET("/character", handler.GetCharacters)       // 全キャラクターを取得
+	r.POST("/character", handler.CreateCharacter)    // 全キャラクターを作成
 	r.PUT("/character/:id", handler.UpdateCharacter) // キャラクターの排出率の変更
 
 	r.Run(":8000")
