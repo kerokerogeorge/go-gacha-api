@@ -1,7 +1,8 @@
 package handler
 
 import (
-	"log"
+	"math"
+
 	// "math"
 	"math/rand"
 	"net/http"
@@ -26,7 +27,8 @@ type ResultCharacterResponse struct {
 	Name string `json:"name"`
 }
 type GachaRequest struct {
-	Times int `json:"times"`
+	Times   int    `json:"times"`
+	GachaID string `json:"gachaId"`
 }
 
 type GachaResultResponse struct {
@@ -74,7 +76,6 @@ type CharacterEmmitionRateResponse struct {
 
 // ガチャ実行API
 func GetCharacter(c *gin.Context) {
-	var characters []model.Character
 	var user model.User
 	var req GachaRequest
 
@@ -94,16 +95,25 @@ func GetCharacter(c *gin.Context) {
 		panic(err)
 	}
 
-	if err := database.DB.Find(&characters).Error; err != nil {
+	var charactersWithEmmitionRate []*Character
+	if err := database.DB.Table("gachas").Select("character_emmition_rates.character_id, characters.name, character_emmition_rates.emission_rate").
+		Joins("INNER JOIN character_emmition_rates ON character_emmition_rates.gacha_id = ?", req.GachaID).
+		Joins("INNER JOIN characters ON character_emmition_rates.character_id = characters.id").
+		Where("gachas.id = ?", req.GachaID).
+		Scan(&charactersWithEmmitionRate).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found"})
 		panic(err)
 	}
 
 	var selectedCharacterId int
 	results := []GachaResultResponse{}
-	now := time.Now()
-	time.Sleep(time.Second * 3)
+
+	// 時間計測のためのAPI
+	// now := time.Now()
+	// time.Sleep(time.Second * 3)
+	// log.Println("ガチャを実行するAPI: ", req.Times)
 	for i := 0; i < req.Times; i++ {
-		selectedCharacterId = DrawGacha(characters)
+		selectedCharacterId = DrawGacha(charactersWithEmmitionRate)
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
 		character := PickCharacter(selectedCharacterId)
 
@@ -116,7 +126,7 @@ func GetCharacter(c *gin.Context) {
 		res := GachaResultResponse{ID: character.ID, Name: character.Name}
 		results = append(results, res)
 	}
-	log.Println("経過: ", time.Since(now).Milliseconds())
+	// log.Println("経過: ", time.Since(now).Milliseconds())
 
 	c.JSON(http.StatusOK, gin.H{"results": results})
 }
@@ -130,23 +140,23 @@ func PickCharacter(selectedCharacterId int) model.Character {
 	return character
 }
 
-func DrawGacha(characters []model.Character) int {
+func DrawGacha(characters []*Character) int {
 	// 1〜100の範囲でランダムに値を取得
 	rand.Seed(time.Now().UnixNano())
 	rand := float64(rand.Intn(100-1) + 1)
 
-	// sum := 0
+	sum := 0
 	// キャラクターの排出率を合計
-	// for _, v := range characters {
-	// 	sum += v.EmissionRate
-	// }
-	// multipleAmt := float64(100) / float64(sum)
+	for _, v := range characters {
+		sum += v.EmissionRate
+	}
+	multipleAmt := float64(100) / float64(sum)
 
 	// 排出率の合計を100％に合わせて、キャラクターに定義されている排出率の数値に合わせて重みをつけ、配列に格納
 	s := []float64{}
-	// for _, v := range characters {
-	// 	s = append(s, math.Round((float64(v.EmissionRate) * float64(multipleAmt))))
-	// }
+	for _, v := range characters {
+		s = append(s, math.Round((float64(v.EmissionRate) * float64(multipleAmt))))
+	}
 
 	// 重みづけをした数値をnum=0から足していき、numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれているか検証
 	num := float64(0)
@@ -160,7 +170,6 @@ func DrawGacha(characters []model.Character) int {
 		}
 	}
 
-	// return strconv.Itoa(selectedCharacterId), nil
 	return selectedCharacterId
 }
 
@@ -195,7 +204,6 @@ func GetCharacterList(c *gin.Context) {
 }
 
 func CreateGacha(c *gin.Context) {
-	log.Println("START=============")
 	newGacha, err := NewGacha()
 	if err != nil {
 		panic(err)
@@ -206,7 +214,6 @@ func CreateGacha(c *gin.Context) {
 	}
 
 	// 排出率をキャラクターごとに出す
-	// var characterEmmitionRate model.CharacterEmmitionRate
 	var characters []model.Character
 	if err := database.DB.Find(&characters).Error; err != nil {
 		panic(err)
@@ -220,7 +227,6 @@ func CreateGacha(c *gin.Context) {
 	for _, character := range characters {
 		rand.Seed(time.Now().UnixNano())
 		emmitionRate := rand.Intn(100-1) + 1
-		log.Println("character.ID: " + character.ID)
 		characterEmmitionRate := model.CharacterEmmitionRate{GachaID: newGacha.ID, CharacterID: character.ID, EmissionRate: emmitionRate}
 		db := database.DB.Table("character_emmition_rates").Create(&characterEmmitionRate)
 		if db.Error != nil {
@@ -228,7 +234,6 @@ func CreateGacha(c *gin.Context) {
 		}
 	}
 
-	log.Println("END=============")
 	c.JSON(http.StatusOK, gin.H{"gachaId": newGacha.ID})
 }
 
@@ -265,14 +270,6 @@ func GetGacha(c *gin.Context) {
 		panic(err)
 	}
 
-	log.Println("========")
-	log.Println(characters)
-	log.Println("========")
-	// res := &GetGachaResponse{
-	// 	GachaID:    req.GachaID,
-	// 	Characters: characters,
-	// }
-
 	c.JSON(http.StatusOK, gin.H{"data": characters})
 }
 
@@ -292,33 +289,6 @@ func ToCharacterModel(c *gin.Context, gachaId string) (*GetGachaResponse, error)
 		Characters: character,
 	}
 	return getGachaResponse, nil
-}
-
-// ============
-// 以下開発用
-// ============
-
-// キャラクターの排出率の変更
-func UpdateCharacter(c *gin.Context) {
-	var character model.Character
-
-	if err := database.DB.Table("characters").Where("id = ?", c.Param("id")).First(&character).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Authentication failed"})
-		return
-	}
-
-	var input UpdateCharacterRequest
-	if err := c.ShouldBindJSON(&input); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	db := database.DB.Model(&character).Updates(input)
-	if db.Error != nil {
-		panic(db.Error)
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": character})
 }
 
 // 全キャラクターを取得
@@ -412,4 +382,28 @@ func DeleteGacha(c *gin.Context) {
 		panic(db.Error)
 	}
 	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
+}
+
+// もう使わないAPI
+// キャラクターの排出率の変更
+func UpdateCharacter(c *gin.Context) {
+	var character model.Character
+
+	if err := database.DB.Table("characters").Where("id = ?", c.Param("id")).First(&character).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Authentication failed"})
+		return
+	}
+
+	var input UpdateCharacterRequest
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	db := database.DB.Model(&character).Updates(input)
+	if db.Error != nil {
+		panic(db.Error)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": character})
 }
