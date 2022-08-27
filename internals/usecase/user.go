@@ -11,6 +11,7 @@ type UserUsecase interface {
 	Get(token string) (*model.User, error)
 	Update(user *model.User, name string) (*model.User, error)
 	GetAll() ([]*model.User, error)
+	Delete(user *model.User) error
 }
 
 type userUsecase struct {
@@ -42,4 +43,8 @@ func (uu *userUsecase) Update(user *model.User, name string) (*model.User, error
 
 func (uu *userUsecase) GetAll() ([]*model.User, error) {
 	return uu.userRepo.GetUsers()
+}
+
+func (uu *userUsecase) Delete(user *model.User) error {
+	return uu.userRepo.DeleteUser(user)
 }

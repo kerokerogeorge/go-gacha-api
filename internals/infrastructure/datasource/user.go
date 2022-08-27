@@ -60,6 +60,14 @@ func (ur *userRepository) UpdateUser(user *model.User, name string) (*model.User
 	return user, nil
 }
 
+func (ur *userRepository) DeleteUser(user *model.User) error {
+	err := ur.db.Delete(&user).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (ur *userRepository) ToUserModel(user *User) *model.User {
 	return &model.User{
 		ID:        user.ID,

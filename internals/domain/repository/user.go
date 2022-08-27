@@ -7,4 +7,5 @@ type UserRepository interface {
 	CreateUser(name string, token string) (string, error)
 	GetUser(token string) (*model.User, error)
 	UpdateUser(user *model.User, name string) (*model.User, error)
+	DeleteUser(user *model.User) error
 }

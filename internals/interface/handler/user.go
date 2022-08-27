@@ -6,8 +6,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
-	database "github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
+	// "github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
+	// database "github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 )
 
@@ -115,22 +115,31 @@ func (uh *userHandler) GetUsers(c *gin.Context) {
 
 // ユーザーの削除
 func (uh *userHandler) DeleteUser(c *gin.Context) {
-	var user model.User
 	key := c.Request.Header.Get("x-token")
-
 	if key == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Token required"})
 		return
 	}
 
-	if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
-		panic(err)
+	user, err := uh.userUsecase.Get(key)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
+		return
 	}
 
-	db := database.DB.Delete(&user)
-	if db.Error != nil {
-		panic(db.Error)
+	// if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
+	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
+	// 	panic(err)
+	// }
+	err = uh.userUsecase.Delete(user)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
 	}
+
+	// db := database.DB.Delete(&user)
+	// if db.Error != nil {
+	// 	panic(db.Error)
+	// }
 	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
 }
