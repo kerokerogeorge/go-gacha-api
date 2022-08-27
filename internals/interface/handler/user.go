@@ -102,16 +102,12 @@ func (uh *userHandler) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": updatedUser.Name})
 }
 
-// ============
-// 以下開発用
-// ============
-
 // 全ユーザーの取得
 func (uh *userHandler) GetUsers(c *gin.Context) {
-	var users []model.User
-
-	if err := database.DB.Find(&users).Error; err != nil {
-		panic(err)
+	users, err := uh.userUsecase.GetAll()
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": users})

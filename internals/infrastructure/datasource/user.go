@@ -43,6 +43,15 @@ func (ur *userRepository) GetUser(token string) (*model.User, error) {
 	return ur.ToUserModel(user), nil
 }
 
+func (ur *userRepository) GetUsers() ([]*model.User, error) {
+	var users []*model.User
+	err := ur.db.Find(&users).Error
+	if err != nil {
+		return nil, nil
+	}
+	return users, nil
+}
+
 func (ur *userRepository) UpdateUser(user *model.User, name string) (*model.User, error) {
 	database := ur.db.Model(&user).Updates(name)
 	if database.Error != nil {

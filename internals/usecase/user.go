@@ -10,6 +10,7 @@ type UserUsecase interface {
 	Create(name string) (string, error)
 	Get(token string) (*model.User, error)
 	Update(user *model.User, name string) (*model.User, error)
+	GetAll() ([]*model.User, error)
 }
 
 type userUsecase struct {
@@ -37,4 +38,8 @@ func (uu *userUsecase) Get(token string) (*model.User, error) {
 
 func (uu *userUsecase) Update(user *model.User, name string) (*model.User, error) {
 	return uu.userRepo.UpdateUser(user, name)
+}
+
+func (uu *userUsecase) GetAll() ([]*model.User, error) {
+	return uu.userRepo.GetUsers()
 }
