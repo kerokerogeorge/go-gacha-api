@@ -13,7 +13,7 @@ import (
 
 type UserHandler interface {
 	Create(*gin.Context)
-	GetUser(*gin.Context)
+	GetOne(*gin.Context)
 	UpdateUser(*gin.Context)
 	GetUsers(*gin.Context)
 	DeleteUser(*gin.Context)
@@ -56,7 +56,7 @@ func (uh *userHandler) Create(c *gin.Context) {
 }
 
 // ユーザ情報取得
-func (uh *userHandler) GetUser(c *gin.Context) {
+func (uh *userHandler) GetOne(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Token required"})
