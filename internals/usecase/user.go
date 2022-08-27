@@ -9,8 +9,8 @@ import (
 type UserUsecase interface {
 	Create(name string) (string, error)
 	Get(token string) (*model.User, error)
-	Update(user *model.User, name string) (*model.User, error)
 	GetAll() ([]*model.User, error)
+	Update(user *model.User, name string) (*model.User, error)
 	Delete(user *model.User) error
 }
 

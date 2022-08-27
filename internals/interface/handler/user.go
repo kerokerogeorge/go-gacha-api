@@ -5,17 +5,14 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
-	// "github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
-	// database "github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 )
 
 type UserHandler interface {
 	Create(*gin.Context)
 	GetOne(*gin.Context)
-	UpdateUser(*gin.Context)
 	GetUsers(*gin.Context)
+	UpdateUser(*gin.Context)
 	DeleteUser(*gin.Context)
 }
 
@@ -72,6 +69,17 @@ func (uh *userHandler) GetOne(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"name": user.Name})
 }
 
+// 全ユーザーの取得
+func (uh *userHandler) GetUsers(c *gin.Context) {
+	users, err := uh.userUsecase.GetAll()
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": users})
+}
+
 // ユーザ情報を一件更新
 func (uh *userHandler) UpdateUser(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
@@ -102,17 +110,6 @@ func (uh *userHandler) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": updatedUser.Name})
 }
 
-// 全ユーザーの取得
-func (uh *userHandler) GetUsers(c *gin.Context) {
-	users, err := uh.userUsecase.GetAll()
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": users})
-}
-
 // ユーザーの削除
 func (uh *userHandler) DeleteUser(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
@@ -127,19 +124,11 @@ func (uh *userHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	// if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
-	// 	c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
-	// 	panic(err)
-	// }
 	err = uh.userUsecase.Delete(user)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
 
-	// db := database.DB.Delete(&user)
-	// if db.Error != nil {
-	// 	panic(db.Error)
-	// }
 	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
 }
