@@ -1,10 +1,19 @@
 package datasource
 
 import (
+	"time"
+
 	"github.com/jinzhu/gorm"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 )
 
+type User struct {
+	ID        string    `json:"id"`
+	Name      string    `json:"name"`
+	Token     string    `json:"token"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
+}
 type userRepository struct {
 	db *gorm.DB
 }
@@ -25,11 +34,29 @@ func (ur *userRepository) CreateUser(name string, token string) (string, error) 
 	return token, nil
 }
 
-func (ur *userRepository) GetUser(token string) (string, error) {
-	var user model.User
+func (ur *userRepository) GetUser(token string) (*model.User, error) {
+	var user *User
 	err := ur.db.Table("users").Where("token = ?", token).First(&user).Error
 	if err != nil {
-		return "", nil
+		return nil, nil
 	}
-	return user.Name, nil
+	return ur.ToUserModel(user), nil
+}
+
+func (ur *userRepository) UpdateUser(user *model.User, name string) (*model.User, error) {
+	database := ur.db.Model(&user).Updates(name)
+	if database.Error != nil {
+		return nil, database.Error
+	}
+	return user, nil
+}
+
+func (ur *userRepository) ToUserModel(user *User) *model.User {
+	return &model.User{
+		ID:        user.ID,
+		Name:      user.Name,
+		Token:     user.Token,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
+	}
 }

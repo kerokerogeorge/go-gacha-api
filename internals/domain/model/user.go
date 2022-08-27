@@ -7,10 +7,10 @@ import (
 )
 
 type User struct {
-	ID         string       `json:"id" gorm:"primary_key"`
-	Name       string       `json:"name"`
-	Token      string       `json:"token"`
-	Characters []*Character `json:"characters"`
-	CreatedAt  time.Time    `json:"createdAt"`
-	UpdatedAt  time.Time    `json:"updatedAt"`
+	ID    string `json:"id" gorm:"primary_key"`
+	Name  string `json:"name"`
+	Token string `json:"token"`
+	// Characters []*Character `json:"characters"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }

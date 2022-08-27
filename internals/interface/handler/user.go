@@ -55,7 +55,7 @@ func (uh *userHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-// ユーザ情報取得
+// ユーザ情報を一件取得
 func (uh *userHandler) GetOne(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
@@ -63,28 +63,18 @@ func (uh *userHandler) GetOne(c *gin.Context) {
 		return
 	}
 
-	username, err := uh.userUsecase.Get(key)
+	user, err := uh.userUsecase.Get(key)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Record not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"name": username})
+	c.JSON(http.StatusOK, gin.H{"name": user.Name})
 }
 
-// ユーザ情報更新API
+// ユーザ情報を一件更新
 func (uh *userHandler) UpdateUser(c *gin.Context) {
-	var user model.User
 	key := c.Request.Header.Get("x-token")
-	if key == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token required"})
-		return
-	}
-
-	if err := database.DB.Table("users").Where("token = ?", key).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
-		panic(err)
-	}
 
 	var input UpdateUserRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -92,12 +82,24 @@ func (uh *userHandler) UpdateUser(c *gin.Context) {
 		panic(err)
 	}
 
-	db := database.DB.Model(&user).Updates(input)
-	if db.Error != nil {
-		panic(db.Error)
+	if key == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
+		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": user.Name})
+	user, err := uh.userUsecase.Get(key)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
+		return
+	}
+
+	updatedUser, err := uh.userUsecase.Update(user, input.Name)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "update failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": updatedUser.Name})
 }
 
 // ============
