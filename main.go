@@ -18,15 +18,18 @@ func NewGin(e *gin.Engine) *gin.Engine {
 	// datasource
 	ur := datasource.NewUserRepository(datasource.DB)
 	cr := datasource.NewCharacterRepository(datasource.DB)
+	gr := datasource.NewGachaRepository(datasource.DB)
 
 	// usecase
 	uu := usecase.NewUserUsecase(ur)
 	cu := usecase.NewCharacterUsecase(cr)
+	gu := usecase.NewGachaUsecase(gr)
 
 	// handler
 	uh := handler.NewUserHandler(uu)
 	ch := handler.NewCharacterHandler(cu)
+	gh := handler.NewGachaHandler(gu)
 
-	e = handler.SetApiRoutes(e, uh, ch)
+	e = handler.SetApiRoutes(e, uh, ch, gh)
 	return e
 }

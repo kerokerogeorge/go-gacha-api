@@ -16,7 +16,7 @@ import (
 )
 
 type GachaHandler interface {
-	CreateGacha(c *gin.Context)
+	Create(c *gin.Context)
 }
 
 type gachaHandler struct {
@@ -29,7 +29,7 @@ func NewGachaHandler(gu usecase.GachaUsecase) *gachaHandler {
 	}
 }
 
-func (gh *gachaHandler) CreateGacha(c *gin.Context) {
+func (gh *gachaHandler) Create(c *gin.Context) {
 	newGacha, err := model.NewGacha()
 	if err != nil {
 		panic(err)
@@ -40,7 +40,7 @@ func (gh *gachaHandler) CreateGacha(c *gin.Context) {
 		panic(err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": gacha})
+	c.JSON(http.StatusOK, gin.H{"data": gacha.ID})
 }
 
 // func GetGachaList(c *gin.Context) {

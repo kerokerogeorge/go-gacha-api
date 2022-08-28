@@ -8,6 +8,7 @@ func SetApiRoutes(
 	e *gin.Engine,
 	uh UserHandler,
 	ch CharacterHandler,
+	gh GachaHandler,
 ) *gin.Engine {
 	user := e.Group("/user")
 	{
@@ -26,12 +27,12 @@ func SetApiRoutes(
 		// character.GET("/emmition_rates", handler.GetEmmitionRate)
 	}
 
-	// gacha := e.Group("/gacha")
-	// {
-	// 	gacha.GET("/", handler.GetGacha)   // 全キャラクターを取得
-	// 	gacha.POST("/draw", handler.GetCharacter) // ガチャ実行API
-	// 	gacha.POST("/create", handler.CreateGacha)
-	// 	gacha.GET("/list", handler.GetGachaList)
-	// }
+	gacha := e.Group("/gacha")
+	{
+		// gacha.GET("/", gh.GetGacha)   // 全キャラクターを取得
+		// gacha.POST("/draw", gh.GetCharacter) // ガチャ実行API
+		gacha.POST("/create", gh.Create)
+		// gacha.GET("/list", gh.GetGachaList)
+	}
 	return e
 }
