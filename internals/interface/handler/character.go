@@ -11,12 +11,13 @@ import (
 	// "github.com/Songmu/flextime"
 	"github.com/gin-gonic/gin"
 	// "github.com/oklog/ulid"
-
+	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 )
 
 type CharacterHandler interface {
 	GetCharacters(c *gin.Context)
+	Create(c *gin.Context)
 }
 
 type characterHandler struct {
@@ -97,6 +98,27 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": characters})
 }
 
+func (ch *characterHandler) Create(c *gin.Context) {
+	var req CreateCharacterRequest
+
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	newCharacter, err := model.NewCharacter(req.Name)
+	if err != nil {
+		panic(err)
+	}
+
+	character, err := ch.characterUsecase.Create(newCharacter)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": character})
+}
+
 // ガチャ実行API
 // func GetCharacter(c *gin.Context) {
 // 	var user model.User
@@ -131,12 +153,12 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 // 	var selectedCharacterId int
 // 	results := []GachaResultResponse{}
 
-// 	/*
-// 			時間計測のためのAPI
-// 			now := time.Now()
-// 		  time.Sleep(time.Second * 3)
-// 		  log.Println("ガチャを実行するAPI: ", req.Times)
-// 	*/
+/*
+		時間計測のためのAPI
+		now := time.Now()
+	  time.Sleep(time.Second * 3)
+	  log.Println("ガチャを実行するAPI: ", req.Times)
+*/
 // 	for i := 0; i < req.Times; i++ {
 // 		selectedCharacterId = DrawGacha(charactersWithEmmitionRate)
 // 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
@@ -198,7 +220,7 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 // 	return selectedCharacterId
 // }
 
-// // ユーザ所持キャラクター一覧取得
+// ユーザ所持キャラクター一覧取得
 // func GetCharacterList(c *gin.Context) {
 // 	var user model.User
 // 	var results []ResultCharacterResponse
@@ -228,16 +250,6 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 // 	c.JSON(http.StatusOK, gin.H{"characters": results})
 // }
 
-// func CreateGacha(c *gin.Context) {
-// 	newGacha, err := NewGacha()
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	db := database.DB.Table("gachas").Create(&newGacha)
-// 	if db.Error != nil {
-// 		panic(db.Error)
-// 	}
-
 // 	// 排出率をキャラクターごとに出す
 // 	var characters []model.Character
 // 	if err := database.DB.Find(&characters).Error; err != nil {
@@ -262,42 +274,6 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 // 	c.JSON(http.StatusOK, gin.H{"gachaId": newGacha.ID})
 // }
 
-// func GetGachaList(c *gin.Context) {
-// 	var gachas []model.Gacha
-// 	var res []GachaListResponse
-// 	if err := database.DB.Find(&gachas).Error; err != nil {
-// 		panic(err)
-// 	}
-
-// 	for _, gacha := range gachas {
-// 		res = append(res, GachaListResponse{ID: gacha.ID})
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"data": res})
-// }
-
-// func GetGacha(c *gin.Context) {
-// 	var req GetGachaRequest
-// 	var gacha model.Gacha
-
-// 	if err := c.ShouldBindQuery(&req); err != nil {
-// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	if err := database.DB.Table("gachas").Where("id = ?", req.GachaID).First(&gacha).Error; err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record Not Found"})
-// 		panic(err)
-// 	}
-
-// 	characters, err := ToCharacterModel(c, req.GachaID)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"data": characters})
-// }
-
 // func ToCharacterModel(c *gin.Context, gachaId string) (*GetGachaResponse, error) {
 // 	var character []*Character
 // 	if err := database.DB.Table("gachas").Select("character_emmition_rates.character_id, characters.name, character_emmition_rates.emission_rate").
@@ -314,48 +290,6 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 // 		Characters: character,
 // 	}
 // 	return getGachaResponse, nil
-// }
-
-// func NewULID() ulid.ULID {
-// 	t := flextime.Now()
-// 	entropy := ulid.Monotonic(rand.New(rand.NewSource(t.UnixNano())), 0)
-// 	return ulid.MustNew(ulid.Timestamp(t), entropy)
-// }
-
-// func NewGacha() (*model.Gacha, error) {
-// 	now := flextime.Now()
-// 	return &model.Gacha{
-// 		ID:        NewULID().String(),
-// 		CreatedAt: now,
-// 		UpdatedAt: now,
-// 	}, nil
-// }
-
-// func CreateCharacter(c *gin.Context) {
-// 	var req CreateCharacterRequest
-
-// 	if err := c.ShouldBindJSON(&req); err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	newCharacter, err := NewCharacter(req.Name)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	db := database.DB.Table("characters").Create(&newCharacter)
-// 	if db.Error != nil {
-// 		panic(db.Error)
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"data": newCharacter})
-// }
-
-// func NewCharacter(name string) (*model.Character, error) {
-// 	now := flextime.Now()
-// 	return &model.Character{
-// 		Name:      name,
-// 		CreatedAt: now,
-// 		UpdatedAt: now,
-// 	}, nil
 // }
 
 // func GetEmmitionRate(c *gin.Context) {
@@ -376,27 +310,6 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 // 	}
 
 // 	c.JSON(http.StatusOK, gin.H{"data": characterEmmitionRateResponse})
-// }
-
-// func DeleteGacha(c *gin.Context) {
-// 	var req DeleteGachaRequest
-// 	var gacha model.Gacha
-
-// 	if err := c.ShouldBindQuery(&req); err != nil {
-// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-
-// 	if err := database.DB.Table("gachas").Where("id = ?", req.GachaID).First(&gacha).Error; err != nil {
-// 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Record Not Found"})
-// 		panic(err)
-// 	}
-
-// 	db := database.DB.Delete(&gacha)
-// 	if db.Error != nil {
-// 		panic(db.Error)
-// 	}
-// 	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
 // }
 
 // // もう使わないAPI

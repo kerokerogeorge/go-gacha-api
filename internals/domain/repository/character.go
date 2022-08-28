@@ -11,5 +11,5 @@ import "github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 
 type CharacterRepository interface {
 	GetCharacters() ([]*model.Character, error)
-	// FindBoardThreads(ctx context.Context, categories []string, nextDocumentId string, limit int, isOwn bool, userId string) ([]*model.BoardThread, string, error)
+	CreateCharacter(character *model.Character) (*model.Character, error)
 }

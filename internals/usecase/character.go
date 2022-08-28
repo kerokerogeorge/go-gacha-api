@@ -7,6 +7,7 @@ import (
 
 type CharacterUsecase interface {
 	GetCharacters() ([]*model.Character, error)
+	Create(character *model.Character) (*model.Character, error)
 }
 
 type characterUsecase struct {
@@ -21,4 +22,8 @@ func NewCharacterUsecase(cr repository.CharacterRepository) CharacterUsecase {
 
 func (cu *characterUsecase) GetCharacters() ([]*model.Character, error) {
 	return cu.characterRepo.GetCharacters()
+}
+
+func (cu *characterUsecase) Create(character *model.Character) (*model.Character, error) {
+	return cu.characterRepo.CreateCharacter(character)
 }

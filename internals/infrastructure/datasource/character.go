@@ -32,3 +32,11 @@ func (cr *characterRepository) GetCharacters() ([]*model.Character, error) {
 	}
 	return characters, nil
 }
+
+func (cr *characterRepository) CreateCharacter(character *model.Character) (*model.Character, error) {
+	err := cr.db.Table("characters").Create(character).Error
+	if err != nil {
+		return nil, err
+	}
+	return character, nil
+}
