@@ -7,6 +7,7 @@ import (
 func SetApiRoutes(
 	e *gin.Engine,
 	uh UserHandler,
+	ch CharacterHandler,
 ) *gin.Engine {
 	user := e.Group("/user")
 	{
@@ -16,14 +17,14 @@ func SetApiRoutes(
 		user.GET("/list", uh.GetUsers)     // 全ユーザーの取得
 		user.DELETE("/", uh.DeleteUser)    // ユーザーの削除
 	}
-	// character := e.Group("/character")
-	// {
-	// 	character.GET("/", handler.GetCharacters)       // 全キャラクターを取得
-	// 	character.POST("/", handler.CreateCharacter)    // 全キャラクターを作成
-	// 	character.PUT("/:id", handler.UpdateCharacter) // キャラクターの排出率の変更
-	// 	character.GET("/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API
-	// 	character.GET("/emmition_rates", handler.GetEmmitionRate)
-	// }
+	character := e.Group("/character")
+	{
+		character.GET("/", ch.GetCharacters) // 全キャラクターを取得
+		// character.POST("/", handler.CreateCharacter)    // 全キャラクターを作成
+		// character.PUT("/:id", handler.UpdateCharacter) // キャラクターの排出率の変更
+		// character.GET("/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API
+		// character.GET("/emmition_rates", handler.GetEmmitionRate)
+	}
 
 	// gacha := e.Group("/gacha")
 	// {
