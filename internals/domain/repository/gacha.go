@@ -8,4 +8,5 @@ import (
 
 type GachaRepository interface {
 	CreateGacha(gacha *model.Gacha) (*model.Gacha, error)
+	List() ([]*model.Gacha, error)
 }

@@ -5,7 +5,6 @@ import (
 
 	"github.com/jinzhu/gorm"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
-	// "github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 )
 
 type Gacha struct {
@@ -31,4 +30,13 @@ func (gr *gachaRepository) CreateGacha(gacha *model.Gacha) (*model.Gacha, error)
 		return nil, err
 	}
 	return gacha, nil
+}
+
+func (gr *gachaRepository) List() ([]*model.Gacha, error) {
+	var gachas []*model.Gacha
+	err := gr.db.Find(&gachas).Error
+	if err != nil {
+		return nil, err
+	}
+	return gachas, nil
 }

@@ -17,6 +17,7 @@ import (
 
 type GachaHandler interface {
 	Create(c *gin.Context)
+	List(c *gin.Context)
 }
 
 type gachaHandler struct {
@@ -43,20 +44,6 @@ func (gh *gachaHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": gacha.ID})
 }
 
-// func GetGachaList(c *gin.Context) {
-// 	var gachas []model.Gacha
-// 	var res []GachaListResponse
-// 	if err := database.DB.Find(&gachas).Error; err != nil {
-// 		panic(err)
-// 	}
-
-// 	for _, gacha := range gachas {
-// 		res = append(res, GachaListResponse{ID: gacha.ID})
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"data": res})
-// }
-
 // func GetGacha(c *gin.Context) {
 // 	var req GetGachaRequest
 // 	var gacha model.Gacha
@@ -78,6 +65,20 @@ func (gh *gachaHandler) Create(c *gin.Context) {
 
 // 	c.JSON(http.StatusOK, gin.H{"data": characters})
 // }
+
+func (gh *gachaHandler) List(c *gin.Context) {
+	var res []GachaListResponse
+	gachas, err := gh.gachaUsecase.List()
+	if err != nil {
+		panic(err)
+	}
+
+	for _, gacha := range gachas {
+		res = append(res, GachaListResponse{ID: gacha.ID})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": res})
+}
 
 // func DeleteGacha(c *gin.Context) {
 // 	var req DeleteGachaRequest

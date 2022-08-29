@@ -7,6 +7,7 @@ import (
 
 type GachaUsecase interface {
 	Create(gacha *model.Gacha) (*model.Gacha, error)
+	List() ([]*model.Gacha, error)
 }
 
 type gachaUsecase struct {
@@ -21,4 +22,8 @@ func NewGachaUsecase(gr repository.GachaRepository) GachaUsecase {
 
 func (gu *gachaUsecase) Create(gacha *model.Gacha) (*model.Gacha, error) {
 	return gu.gachaRepo.CreateGacha(gacha)
+}
+
+func (gu *gachaUsecase) List() ([]*model.Gacha, error) {
+	return gu.gachaRepo.List()
 }
