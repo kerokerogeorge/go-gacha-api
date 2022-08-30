@@ -29,7 +29,7 @@ func NewGin(e *gin.Engine) *gin.Engine {
 	// handler
 	uh := handler.NewUserHandler(uu)
 	ch := handler.NewCharacterHandler(cu)
-	gh := handler.NewGachaHandler(gu, cu)
+	gh := handler.NewGachaHandler(gu, cu, uu)
 
 	e = handler.SetApiRoutes(e, uh, ch, gh)
 	return e

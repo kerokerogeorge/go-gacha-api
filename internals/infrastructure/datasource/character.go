@@ -13,6 +13,7 @@ type Character struct {
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
+
 type characterRepository struct {
 	db *gorm.DB
 }
@@ -39,4 +40,30 @@ func (cr *characterRepository) CreateCharacter(character *model.Character) (*mod
 		return nil, err
 	}
 	return character, nil
+}
+
+func (cr *characterRepository) GetCharacter(characterId int) (*model.Character, error) {
+	var character Character
+	err := cr.db.Table("characters").Where("id = ?", characterId).First(&character).Error
+	if err != nil {
+		return nil, err
+	}
+	return cr.ToCharacterModel(character), nil
+}
+
+func (ur *characterRepository) ToCharacterModel(character Character) *model.Character {
+	return &model.Character{
+		ID:        character.ID,
+		Name:      character.Name,
+		CreatedAt: character.CreatedAt,
+		UpdatedAt: character.UpdatedAt,
+	}
+}
+
+func (cr *characterRepository) CreateUserCharacter(result *model.Result) error {
+	err := cr.db.Table("user_characters").Create(&result).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

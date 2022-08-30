@@ -19,7 +19,7 @@ type CharacterEmmitionRate struct {
 type CharacterWithEmmitionRate struct {
 	CharacterID  string `json:"characterId"`
 	Name         string `json:"name"`
-	EmissionRate string `json:"emissionRate"`
+	EmissionRate int    `json:"emissionRate"`
 }
 
 func NewCharacterEmmitionRate(gachaId string, characterId string) (*CharacterEmmitionRate, error) {
