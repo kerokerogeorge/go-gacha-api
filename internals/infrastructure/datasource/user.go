@@ -35,7 +35,7 @@ func (ur *userRepository) CreateUser(name string, token string) (string, error) 
 }
 
 func (ur *userRepository) GetUser(token string) (*model.User, error) {
-	var user *User
+	var user User
 	err := ur.db.Table("users").Where("token = ?", token).First(&user).Error
 	if err != nil {
 		return nil, nil
@@ -68,7 +68,7 @@ func (ur *userRepository) DeleteUser(user *model.User) error {
 	return nil
 }
 
-func (ur *userRepository) ToUserModel(user *User) *model.User {
+func (ur *userRepository) ToUserModel(user User) *model.User {
 	return &model.User{
 		ID:        user.ID,
 		Name:      user.Name,

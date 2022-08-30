@@ -53,10 +53,6 @@ type CreateCharacterRequest struct {
 	Name string `json:"name"`
 }
 
-type GachaListResponse struct {
-	ID string `json:"gachaId"`
-}
-
 type GetEmmitionRateRequest struct {
 	GachaID string `form:"gachaId"`
 }
@@ -65,27 +61,18 @@ type DeleteGachaRequest struct {
 	GachaID string `form:"gachaId"`
 }
 
-type GetGachaRequest struct {
-	GachaID string `form:"gachaId"`
-}
-
-type GetGachaResponse struct {
-	GachaID    string       `json:"gachaId"`
-	Characters []*Character `json:"characters"`
-}
-
 type Character struct {
 	CharacterID  string `json:"characterId"`
 	Name         string `json:"name"`
 	EmissionRate int    `json:"emissionRate"`
 }
 
-type CharacterEmmitionRateResponse struct {
-	ID           string `json:"id"`
-	CharacterID  string `json:"characterId"`
-	Name         string `json:"name"`
-	EmissionRate int    `json:"emissionRate"`
-}
+// type CharacterEmmitionRateResponse struct {
+// 	ID           string `json:"id"`
+// 	CharacterID  string `json:"characterId"`
+// 	Name         string `json:"name"`
+// 	EmissionRate int    `json:"emissionRate"`
+// }
 
 // 全キャラクターを取得
 func (ch *characterHandler) GetCharacters(c *gin.Context) {
@@ -248,48 +235,6 @@ func (ch *characterHandler) Create(c *gin.Context) {
 // 	sort.Slice(results, func(i, j int) bool { return results[i].Id < results[j].Id })
 
 // 	c.JSON(http.StatusOK, gin.H{"characters": results})
-// }
-
-// 	// 排出率をキャラクターごとに出す
-// 	var characters []model.Character
-// 	if err := database.DB.Find(&characters).Error; err != nil {
-// 		panic(err)
-// 	}
-
-// 	if len(characters) == 0 {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "no characters"})
-// 		return
-// 	}
-
-// 	for _, character := range characters {
-// 		rand.Seed(time.Now().UnixNano())
-// 		emmitionRate := rand.Intn(100-1) + 1
-// 		characterEmmitionRate := model.CharacterEmmitionRate{GachaID: newGacha.ID, CharacterID: character.ID, EmissionRate: emmitionRate}
-// 		db := database.DB.Table("character_emmition_rates").Create(&characterEmmitionRate)
-// 		if db.Error != nil {
-// 			panic(db.Error)
-// 		}
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"gachaId": newGacha.ID})
-// }
-
-// func ToCharacterModel(c *gin.Context, gachaId string) (*GetGachaResponse, error) {
-// 	var character []*Character
-// 	if err := database.DB.Table("gachas").Select("character_emmition_rates.character_id, characters.name, character_emmition_rates.emission_rate").
-// 		Joins("INNER JOIN character_emmition_rates ON character_emmition_rates.gacha_id = ?", gachaId).
-// 		Joins("INNER JOIN characters ON character_emmition_rates.character_id = characters.id").
-// 		Where("gachas.id = ?", gachaId).
-// 		Scan(&character).Error; err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found"})
-// 		panic(err)
-// 	}
-
-// 	getGachaResponse := &GetGachaResponse{
-// 		GachaID:    gachaId,
-// 		Characters: character,
-// 	}
-// 	return getGachaResponse, nil
 // }
 
 // func GetEmmitionRate(c *gin.Context) {

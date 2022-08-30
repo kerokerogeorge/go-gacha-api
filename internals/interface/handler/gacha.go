@@ -4,13 +4,12 @@ import (
 	// "math"
 
 	// "math/rand"
+	"log"
 	"net/http"
-	// "sort"
-	// "time"
 
-	// "github.com/Songmu/flextime"
+	// "sort"
+
 	"github.com/gin-gonic/gin"
-	// "github.com/oklog/ulid"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 )
@@ -18,15 +17,30 @@ import (
 type GachaHandler interface {
 	Create(c *gin.Context)
 	List(c *gin.Context)
+	Get(c *gin.Context)
 }
 
+type GetGachaResponse struct {
+	GachaId   string                             `json:"gachaId"`
+	Character []*model.CharacterWithEmmitionRate `json:"character"`
+}
+
+type GachaListResponse struct {
+	ID string `json:"gachaId"`
+}
+
+type GetGachaRequest struct {
+	GachaId string `form:"gachaId"`
+}
 type gachaHandler struct {
-	gachaUsecase usecase.GachaUsecase
+	gachaUsecase     usecase.GachaUsecase
+	characterUsecase usecase.CharacterUsecase
 }
 
-func NewGachaHandler(gu usecase.GachaUsecase) *gachaHandler {
+func NewGachaHandler(gu usecase.GachaUsecase, cu usecase.CharacterUsecase) *gachaHandler {
 	return &gachaHandler{
-		gachaUsecase: gu,
+		gachaUsecase:     gu,
+		characterUsecase: cu,
 	}
 }
 
@@ -44,27 +58,33 @@ func (gh *gachaHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": gacha.ID})
 }
 
-// func GetGacha(c *gin.Context) {
-// 	var req GetGachaRequest
-// 	var gacha model.Gacha
+func (gh *gachaHandler) Get(c *gin.Context) {
+	var req GetGachaRequest
 
-// 	if err := c.ShouldBindQuery(&req); err != nil {
-// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	log.Println(req.GachaId)
+	gacha, err := gh.gachaUsecase.Get(req.GachaId)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Record Not Found"})
+		return
+	}
 
-// 	if err := database.DB.Table("gachas").Where("id = ?", req.GachaID).First(&gacha).Error; err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record Not Found"})
-// 		panic(err)
-// 	}
+	charactersWithEmmitionRate, err := gh.characterUsecase.GetCharactersWithEmmitionRate(gacha.ID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Characters not found"})
+		return
+	}
 
-// 	characters, err := ToCharacterModel(c, req.GachaID)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	getGachaResponse := &GetGachaResponse{
+		GachaId:   gacha.ID,
+		Character: charactersWithEmmitionRate,
+	}
 
-// 	c.JSON(http.StatusOK, gin.H{"data": characters})
-// }
+	c.JSON(http.StatusOK, gin.H{"data": getGachaResponse})
+}
 
 func (gh *gachaHandler) List(c *gin.Context) {
 	var res []GachaListResponse
@@ -99,4 +119,22 @@ func (gh *gachaHandler) List(c *gin.Context) {
 // 		panic(db.Error)
 // 	}
 // 	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
+// }
+
+// func ToCharacterModel(c *gin.Context, gachaId string) (*GetGachaResponse, error) {
+// 	var character []*Character
+// 	if err := database.DB.Table("gachas").Select("character_emmition_rates.character_id, characters.name, character_emmition_rates.emission_rate").
+// 		Joins("INNER JOIN character_emmition_rates ON character_emmition_rates.gacha_id = ?", gachaId).
+// 		Joins("INNER JOIN characters ON character_emmition_rates.character_id = characters.id").
+// 		Where("gachas.id = ?", gachaId).
+// 		Scan(&character).Error; err != nil {
+// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found"})
+// 		panic(err)
+// 	}
+
+// 	getGachaResponse := &GetGachaResponse{
+// 		GachaID:    gachaId,
+// 		Characters: character,
+// 	}
+// 	return getGachaResponse, nil
 // }

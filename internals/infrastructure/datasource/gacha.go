@@ -40,3 +40,20 @@ func (gr *gachaRepository) List() ([]*model.Gacha, error) {
 	}
 	return gachas, nil
 }
+
+func (gr *gachaRepository) GetOne(gachaId string) (*model.Gacha, error) {
+	var gacha Gacha
+	err := gr.db.Table("gachas").Where("id = ?", gachaId).First(&gacha).Error
+	if err != nil {
+		return nil, err
+	}
+	return gr.ToGachaModel(gacha), nil
+}
+
+func (gr *gachaRepository) ToGachaModel(gacha Gacha) *model.Gacha {
+	return &model.Gacha{
+		ID:        gacha.ID,
+		CreatedAt: gacha.CreatedAt,
+		UpdatedAt: gacha.UpdatedAt,
+	}
+}
