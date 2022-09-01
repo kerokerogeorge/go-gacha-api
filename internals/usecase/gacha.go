@@ -131,13 +131,13 @@ func (gu *gachaUsecase) Delete(gacha *model.Gacha) error {
 }
 
 func (gu *gachaUsecase) GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error) {
-	return gu.gachaRepo.GetGachaCharacters(gachaId)
+	return gu.characterEmmitionRateRepo.GetGachaCharacters(gachaId)
 }
 
 func (gu *gachaUsecase) DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error {
 	for _, gachaCharacter := range gachaCharacters {
 		log.Println("will delete", gachaCharacter)
-		err := gu.gachaRepo.DeleteGachaCharacter(gachaCharacter)
+		err := gu.characterEmmitionRateRepo.DeleteGachaCharacter(gachaCharacter)
 		if err != nil {
 			return err
 		}

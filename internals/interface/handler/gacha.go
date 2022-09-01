@@ -42,6 +42,11 @@ type GachaResultResponse struct {
 type DeleteGachaRequest struct {
 	GachaId string `form:"gachaId"`
 }
+
+type GetEmmitionRateRequest struct {
+	GachaID string `form:"gachaId"`
+}
+
 type gachaHandler struct {
 	gachaUsecase     usecase.GachaUsecase
 	characterUsecase usecase.CharacterUsecase
@@ -181,3 +186,14 @@ func (gh *gachaHandler) Delete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
 }
+
+// func (gh *gachaHandler) GetCharacterEmmitonRates(c *gin.Context) {
+// 	var req GetEmmitionRateRequest
+
+// 	if err := c.ShouldBindQuery(&req); err != nil {
+// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+// 		return
+// 	}
+
+// 	// gachaCharacterEmmitionRates, err :=
+// }

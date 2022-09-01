@@ -33,10 +33,6 @@ type CreateCharacterRequest struct {
 	Name string `json:"name"`
 }
 
-type GetEmmitionRateRequest struct {
-	GachaID string `form:"gachaId"`
-}
-
 type Character struct {
 	CharacterID  string `json:"characterId"`
 	Name         string `json:"name"`
