@@ -23,10 +23,6 @@ func NewCharacterHandler(cu usecase.CharacterUsecase) *characterHandler {
 	}
 }
 
-// type UpdateCharacterRequest struct {
-// 	EmissionRate float64 `json:"emissionRate"`
-// }
-
 type ResultCharacterResponse struct {
 	Id   string `json:"userCharacterId"`
 	ID   string `json:"characterId"`
@@ -38,10 +34,6 @@ type CreateCharacterRequest struct {
 }
 
 type GetEmmitionRateRequest struct {
-	GachaID string `form:"gachaId"`
-}
-
-type DeleteGachaRequest struct {
 	GachaID string `form:"gachaId"`
 }
 

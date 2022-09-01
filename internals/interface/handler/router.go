@@ -15,13 +15,13 @@ func SetApiRoutes(
 		user.GET("", uh.GetOne)            // ユーザ情報取得API
 		user.POST("/create", uh.Create)    // ユーザ情報作成API
 		user.PUT("/update", uh.UpdateUser) // ユーザ情報更新API
-		user.GET("/list", uh.GetUsers)     // 全ユーザーの取得
-		user.DELETE("", uh.DeleteUser)     // ユーザーの削除
+		user.GET("/list", uh.GetUsers)     // ユーザー一覧取得API
+		user.DELETE("", uh.DeleteUser)     // ユーザー削除API
 	}
 	character := e.Group("/character")
 	{
-		character.GET("", ch.GetCharacters) // 全キャラクターを取得
-		character.POST("", ch.Create)       // 全キャラクターを作成
+		character.GET("", ch.GetCharacters) // キャラクター一覧取得API
+		character.POST("", ch.Create)       // 全キャラクターを作成API
 		// // character.PUT("/:id", handler.UpdateCharacter) // キャラクターの排出率の変更
 		// character.GET("/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API
 		// character.GET("/emmition_rates", handler.GetEmmitionRate)
@@ -29,11 +29,11 @@ func SetApiRoutes(
 
 	gacha := e.Group("/gacha")
 	{
-		gacha.POST("/create", gh.Create)
-		gacha.GET("/list", gh.List) // 全キャラクターを取得
-		gacha.GET("", gh.Get)
-		gacha.POST("/draw", gh.Draw) // ガチャ実行API
-		// gacha.GET("/list", gh.GetGachaList)
+		gacha.POST("/create", gh.Create) // ガチャ作成API
+		gacha.GET("/list", gh.List)      // キャラクター一覧取得API
+		gacha.GET("", gh.Get)            // 一件のガチャ作成API
+		gacha.POST("/draw", gh.Draw)     // ガチャ実行API
+		gacha.DELETE("", gh.Delete)      // ガチャ削除API
 	}
 	return e
 }

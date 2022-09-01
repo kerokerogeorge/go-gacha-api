@@ -50,10 +50,35 @@ func (gr *gachaRepository) GetOne(gachaId string) (*model.Gacha, error) {
 	return gr.ToGachaModel(gacha), nil
 }
 
+func (gr *gachaRepository) DeleteGacha(gacha *model.Gacha) error {
+	err := gr.db.Delete(&gacha).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (gr *gachaRepository) ToGachaModel(gacha Gacha) *model.Gacha {
 	return &model.Gacha{
 		ID:        gacha.ID,
 		CreatedAt: gacha.CreatedAt,
 		UpdatedAt: gacha.UpdatedAt,
 	}
+}
+
+func (gr *gachaRepository) GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error) {
+	var gachaCharacters []*model.CharacterEmmitionRate
+	err := gr.db.Table("character_emmition_rates").Where("gacha_id = ?", gachaId).Find(&gachaCharacters).Error
+	if err != nil {
+		return nil, err
+	}
+	return gachaCharacters, nil
+}
+
+func (gr *gachaRepository) DeleteGachaCharacter(gachaCharacter *model.CharacterEmmitionRate) error {
+	err := gr.db.Delete(&gachaCharacter).Error
+	if err != nil {
+		return err
+	}
+	return nil
 }

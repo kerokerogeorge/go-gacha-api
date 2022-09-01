@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"log"
 	"math"
 	"math/rand"
 	"time"
@@ -14,6 +15,9 @@ type GachaUsecase interface {
 	List() ([]*model.Gacha, error)
 	Get(gachaId string) (*model.Gacha, error)
 	Draw(charactersWithEmmitionRate []*model.CharacterWithEmmitionRate, userId string) (*model.Character, error)
+	Delete(gacha *model.Gacha) error
+	GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error)
+	DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error
 }
 
 type gachaUsecase struct {
@@ -120,4 +124,24 @@ func (gu *gachaUsecase) Draw(charactersWithEmmitionRate []*model.CharacterWithEm
 	}
 
 	return character, nil
+}
+
+func (gu *gachaUsecase) Delete(gacha *model.Gacha) error {
+	return gu.gachaRepo.DeleteGacha(gacha)
+}
+
+func (gu *gachaUsecase) GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error) {
+	return gu.gachaRepo.GetGachaCharacters(gachaId)
+}
+
+func (gu *gachaUsecase) DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error {
+	for _, gachaCharacter := range gachaCharacters {
+		log.Println("will delete", gachaCharacter)
+		err := gu.gachaRepo.DeleteGachaCharacter(gachaCharacter)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
