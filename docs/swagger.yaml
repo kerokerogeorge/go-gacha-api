@@ -1,4 +1,19 @@
 definitions:
+  handler.CreateGachaResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  handler.CreateUserResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  handler.GachaListResponse:
+    properties:
+      gachaId:
+        type: string
+    type: object
   handler.GachaResultResponse:
     properties:
       characterId:
@@ -14,6 +29,23 @@ definitions:
         type: array
       gachaId:
         type: string
+    type: object
+  handler.GetUserResponse:
+    properties:
+      name:
+        type: string
+    type: object
+  handler.UpdateUserResponse:
+    properties:
+      name:
+        type: string
+    type: object
+  handler.UserListResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
     type: object
   helper.Error:
     properties:
@@ -40,6 +72,29 @@ definitions:
       emissionRate:
         type: integer
       name:
+        type: string
+    type: object
+  model.User:
+    properties:
+      createdAt:
+        description: Characters []*Character `json:"characters"`
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      token:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.UserCharacter:
+    properties:
+      characterId:
+        type: string
+      name:
+        type: string
+      userCharacterId:
         type: string
     type: object
 host: localhost:8000
@@ -157,7 +212,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.CreateGachaResponse'
         "400":
           description: Bad Request
           schema:
@@ -207,7 +262,9 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/handler.GachaListResponse'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -246,7 +303,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.GetUserResponse'
         "400":
           description: Bad Request
           schema:
@@ -260,7 +317,7 @@ paths:
         "201":
           description: Created
           schema:
-            type: string
+            $ref: '#/definitions/handler.CreateUserResponse'
         "400":
           description: Bad Request
           schema:
@@ -286,7 +343,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.UpdateUserResponse'
         "400":
           description: Bad Request
           schema:
@@ -304,8 +361,12 @@ paths:
         required: true
         type: string
       responses:
-        "204":
-          description: No Content
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.UserCharacter'
+            type: array
         "400":
           description: Bad Request
           schema:
@@ -320,7 +381,7 @@ paths:
         "200":
           description: OK
           schema:
-            type: string
+            $ref: '#/definitions/handler.UserListResponse'
         "400":
           description: Bad Request
           schema:

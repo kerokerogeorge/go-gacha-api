@@ -6,6 +6,7 @@ import (
 	"sort"
 
 	"github.com/gin-gonic/gin"
+	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 )
 
@@ -36,11 +37,27 @@ type UpdateUserRequest struct {
 	Name string `json:"name"`
 }
 
+type CreateUserResponse struct {
+	Token string `json:"token"`
+}
+
+type GetUserResponse struct {
+	Name string `json:"name"`
+}
+
+type UpdateUserResponse struct {
+	Name string `json:"name"`
+}
+
+type UserListResponse struct {
+	Users []*model.User `json:"users"`
+}
+
 // @Summary ユーザー一覧を取得するAPI
 // @Router /user/list [get]
 // @Description ユーザー一覧を取得します
 // @Accept application/json
-// @Success 200 {object} string
+// @Success 200 {object} UserListResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) GetUsers(c *gin.Context) {
 	users, err := uh.userUsecase.GetAll()
@@ -49,14 +66,16 @@ func (uh *userHandler) GetUsers(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": users})
+	c.JSON(http.StatusOK, &UserListResponse{
+		Users: users,
+	})
 }
 
 // @Summary 新しいユーザーを作成するAPI
 // @Router /user [post]
 // @Description 新しいユーザーを作成します
 // @Accept application/json
-// @Success 201 {object} string
+// @Success 201 {object} CreateUserResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) Create(c *gin.Context) {
 	var input CreateUserRequest
@@ -72,7 +91,9 @@ func (uh *userHandler) Create(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"token": token})
+	c.JSON(http.StatusOK, &CreateUserResponse{
+		Token: token,
+	})
 }
 
 // @Summary 新しいユーザーを一件取得するAPI
@@ -80,22 +101,24 @@ func (uh *userHandler) Create(c *gin.Context) {
 // @Description ユーザーを一件取得する
 // @Accept application/json
 // @Param x-token header string true "x-token"
-// @Success 200 {object} string
+// @Success 200 {object} GetUserResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) GetOne(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
 		return
 	}
 
 	user, err := uh.userUsecase.Get(key)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Record not found"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "record not found"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"name": user.Name})
+	c.JSON(http.StatusOK, &GetUserResponse{
+		Name: user.Name,
+	})
 }
 
 // @Summary ユーザー情報を更新するAPI
@@ -104,7 +127,7 @@ func (uh *userHandler) GetOne(c *gin.Context) {
 // @Accept application/json
 // @Param x-token header string true "x-token"
 // @Param name body string true "ユーザー名"
-// @Success 200 {object} string
+// @Success 200 {object} UpdateUserResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) UpdateUser(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
@@ -132,7 +155,9 @@ func (uh *userHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": updatedUser.Name})
+	c.JSON(http.StatusOK, &UpdateUserResponse{
+		Name: updatedUser.Name,
+	})
 }
 
 // @Summary ユーザー情報を削除するAPI
@@ -161,7 +186,7 @@ func (uh *userHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
+	c.Status(http.StatusNoContent)
 }
 
 // @Summary ユーザー所持キャラクター一覧を取得するAPI
@@ -169,12 +194,12 @@ func (uh *userHandler) DeleteUser(c *gin.Context) {
 // @Description ユーザー所持キャラクター一覧を取得します
 // @Accept application/json
 // @Param x-token header string true "x-token"
-// @Success 204
+// @Success 200 {object} []model.UserCharacter
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) GetUserCharacters(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
 		return
 	}
 

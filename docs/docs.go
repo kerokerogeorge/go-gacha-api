@@ -152,7 +152,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/handler.CreateGachaResponse"
                         }
                     },
                     "400": {
@@ -255,7 +255,10 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.GachaListResponse"
+                            }
                         }
                     },
                     "400": {
@@ -287,7 +290,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/handler.GetUserResponse"
                         }
                     },
                     "400": {
@@ -326,7 +329,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/handler.UpdateUserResponse"
                         }
                     },
                     "400": {
@@ -347,7 +350,7 @@ const docTemplate = `{
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/handler.CreateUserResponse"
                         }
                     },
                     "400": {
@@ -403,8 +406,14 @@ const docTemplate = `{
                     }
                 ],
                 "responses": {
-                    "204": {
-                        "description": "No Content"
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.UserCharacter"
+                            }
+                        }
                     },
                     "400": {
                         "description": "Bad Request",
@@ -426,7 +435,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/handler.UserListResponse"
                         }
                     },
                     "400": {
@@ -440,6 +449,30 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.CreateGachaResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.CreateUserResponse": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.GachaListResponse": {
+            "type": "object",
+            "properties": {
+                "gachaId": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.GachaResultResponse": {
             "type": "object",
             "properties": {
@@ -462,6 +495,33 @@ const docTemplate = `{
                 },
                 "gachaId": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.GetUserResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UpdateUserResponse": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.UserListResponse": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.User"
+                    }
                 }
             }
         },
@@ -503,6 +563,41 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.User": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "description": "Characters []*Character ` + "`" + `json:\"characters\"` + "`" + `",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.UserCharacter": {
+            "type": "object",
+            "properties": {
+                "characterId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userCharacterId": {
                     "type": "string"
                 }
             }

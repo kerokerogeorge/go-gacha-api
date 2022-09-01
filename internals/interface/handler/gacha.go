@@ -43,6 +43,10 @@ type DeleteGachaRequest struct {
 	GachaId string `form:"gachaId"`
 }
 
+type CreateGachaResponse struct {
+	GachaId string `json:"id"`
+}
+
 type gachaHandler struct {
 	gachaUsecase     usecase.GachaUsecase
 	characterUsecase usecase.CharacterUsecase
@@ -61,7 +65,7 @@ func NewGachaHandler(gu usecase.GachaUsecase, cu usecase.CharacterUsecase, uu us
 // @Router /gacha/list [get]
 // @Description ガチャ一覧を取得します
 // @Accept application/json
-// @Success 200 {object} string
+// @Success 200 {object} []GachaListResponse
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) List(c *gin.Context) {
 	var res []GachaListResponse
@@ -81,7 +85,7 @@ func (gh *gachaHandler) List(c *gin.Context) {
 // @Router /gacha [post]
 // @Description 新しいガチャを作成し、排出率をキャラクターに割り当てます
 // @Accept application/json
-// @Success 200 {object} string
+// @Success 200 {object} CreateGachaResponse
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Create(c *gin.Context) {
 	gacha, err := gh.gachaUsecase.Create()
@@ -89,7 +93,9 @@ func (gh *gachaHandler) Create(c *gin.Context) {
 		panic(err)
 	}
 
-	c.JSON(http.StatusOK, gin.H{"gachaId": gacha.ID})
+	c.JSON(http.StatusOK, &CreateGachaResponse{
+		GachaId: gacha.ID,
+	})
 }
 
 // @Summary ガチャを一件取得するAPI
@@ -109,13 +115,13 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 
 	gacha, err := gh.gachaUsecase.Get(req.GachaId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Record Not Found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
 		return
 	}
 
 	charactersWithEmmitionRate, err := gh.characterUsecase.GetCharactersWithEmmitionRate(gacha.ID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Characters not found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "characters not found"})
 		return
 	}
 
@@ -145,7 +151,7 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Token required"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
 		return
 	}
 
@@ -193,7 +199,7 @@ func (gh *gachaHandler) Delete(c *gin.Context) {
 
 	gachaCharacters, err := gh.gachaUsecase.GetGachaCharacters(req.GachaId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "record Not Found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
 		return
 	}
 
@@ -205,7 +211,7 @@ func (gh *gachaHandler) Delete(c *gin.Context) {
 
 	gacha, err := gh.gachaUsecase.Get(req.GachaId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "gacha record Not Found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "gacha record not Found"})
 		return
 	}
 
@@ -215,5 +221,5 @@ func (gh *gachaHandler) Delete(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
+	c.Status(http.StatusNoContent)
 }
