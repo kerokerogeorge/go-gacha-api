@@ -134,7 +134,7 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 // @Param x-token header string true "x-token"
 // @Param gachaId body string true "gachaId"
 // @Param times body string true "ガチャを実行する回数"
-// @Success 200 {object} []*GachaResultResponse
+// @Success 200 {object} []GachaResultResponse
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Draw(c *gin.Context) {
 	var req CreateGachaRequest
@@ -180,7 +180,7 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 // @Router /gacha [delete]
 // @Description ガチャを一件削除します
 // @Accept application/json
-// @Param gachaId params string true "gachaId"
+// @Param gachaId query string true "gachaId"
 // @Success 204
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Delete(c *gin.Context) {

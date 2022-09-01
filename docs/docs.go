@@ -15,17 +15,509 @@ const docTemplate = `{
     },
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
-    "paths": {}
+    "paths": {
+        "/character": {
+            "post": {
+                "description": "新しいキャラクターを作成します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "キャラクターを作成するAPI",
+                "parameters": [
+                    {
+                        "description": "name",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Character"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/character/emmition_rates": {
+            "get": {
+                "description": "キャラクター一覧を排出率とともに取得します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "キャラクター一覧を排出率とともに取得するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "gachaId",
+                        "name": "gachaId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.CharacterWithEmmitionRate"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/character/list": {
+            "get": {
+                "description": "登録されているキャラクター一覧を取得します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "キャラクター一覧を取得するAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Character"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/gacha": {
+            "get": {
+                "description": "新しいガチャと登録されているキャラクターの排出率を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ガチャを一件取得するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "gachaId",
+                        "name": "gachaId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetGachaResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "新しいガチャを作成し、排出率をキャラクターに割り当てます",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "新しいガチャを作成するAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "ガチャを一件削除します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ガチャを削除するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "gachaId",
+                        "name": "gachaId",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/gacha/draw": {
+            "post": {
+                "description": "ガチャを実行し、キャラクターを取得します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ガチャを実行するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "x-token",
+                        "name": "x-token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "gachaId",
+                        "name": "gachaId",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "ガチャを実行する回数",
+                        "name": "times",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.GachaResultResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/gacha/list": {
+            "get": {
+                "description": "ガチャ一覧を取得します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ガチャ一覧を取得するAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "description": "ユーザーを一件取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "新しいユーザーを一件取得するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "x-token",
+                        "name": "x-token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "ユーザーを一件更新する",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ユーザー情報を更新するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "x-token",
+                        "name": "x-token",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "ユーザー名",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "新しいユーザーを作成します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "新しいユーザーを作成するAPI",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "ユーザーを一件削除する",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ユーザー情報を削除するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "x-token",
+                        "name": "x-token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/characters": {
+            "get": {
+                "description": "ユーザー所持キャラクター一覧を取得します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ユーザー所持キャラクター一覧を取得するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "x-token",
+                        "name": "x-token",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/list": {
+            "get": {
+                "description": "ユーザー一覧を取得します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ユーザー一覧を取得するAPI",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "handler.GachaResultResponse": {
+            "type": "object",
+            "properties": {
+                "characterId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.GetGachaResponse": {
+            "type": "object",
+            "properties": {
+                "character": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CharacterWithEmmitionRate"
+                    }
+                },
+                "gachaId": {
+                    "type": "string"
+                }
+            }
+        },
+        "helper.Error": {
+            "type": "object",
+            "properties": {
+                "errors": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "model.Character": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.CharacterWithEmmitionRate": {
+            "type": "object",
+            "properties": {
+                "characterId": {
+                    "type": "string"
+                },
+                "emissionRate": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }`
 
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "",
-	Host:             "",
+	Host:             "localhost:8000",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "",
-	Description:      "",
+	Title:            "Gacha-API Docs",
+	Description:      "ガチャアプリのAPI仕様書です",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 }

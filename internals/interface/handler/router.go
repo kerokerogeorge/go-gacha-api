@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	docs "github.com/kerokerogeorge/go-gacha-api/docs"
 )
 
 func SetApiRoutes(
@@ -10,6 +11,7 @@ func SetApiRoutes(
 	ch CharacterHandler,
 	gh GachaHandler,
 ) *gin.Engine {
+	docs.SwaggerInfo.BasePath = ""
 	user := e.Group("/user")
 	{
 		user.GET("/list", uh.GetUsers)                // ユーザー一覧取得API
