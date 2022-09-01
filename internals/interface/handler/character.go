@@ -32,13 +32,12 @@ type GetCharactersWithEmmitionRateRequest struct {
 	GachaID string `form:"gachaId"`
 }
 
-type Character struct {
-	CharacterID  string `json:"characterId"`
-	Name         string `json:"name"`
-	EmissionRate int    `json:"emissionRate"`
-}
-
-// 全キャラクターを取得
+// @Summary キャラクター一覧を取得するAPI
+// @Router /character/list [get]
+// @Description 登録されているキャラクター一覧を取得します
+// @Accept application/json
+// @Success 200 {object} []*model.Character
+// @Failure 400 {object} helper.Error
 func (ch *characterHandler) GetCharacters(c *gin.Context) {
 	characters, err := ch.characterUsecase.GetCharacters()
 	if err != nil {
@@ -49,6 +48,13 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": characters})
 }
 
+// @Summary キャラクターを作成するAPI
+// @Router /character [post]
+// @Description 新しいキャラクターを作成します
+// @Accept application/json
+// @Param name body string true "name"
+// @Success 200 {object} *model.Character
+// @Failure 400 {object} helper.Error
 func (ch *characterHandler) Create(c *gin.Context) {
 	var req CreateCharacterRequest
 
@@ -70,6 +76,13 @@ func (ch *characterHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": character})
 }
 
+// @Summary キャラクター一覧を排出率とともに取得するAPI
+// @Router /character/emmition_rates [get]
+// @Description キャラクター一覧を排出率とともに取得します
+// @Accept application/json
+// @Param gachaId query string true "gachaId"
+// @Success 200 {object} []*model.CharacterWithEmmitionRate
+// @Failure 400 {object} helper.Error
 func (ch *characterHandler) GetWithEmmitionRate(c *gin.Context) {
 	var req GetCharactersWithEmmitionRateRequest
 

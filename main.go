@@ -5,8 +5,13 @@ import (
 	"github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
 	"github.com/kerokerogeorge/go-gacha-api/internals/interface/handler"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Gacha-API Docs
+// @description ガチャアプリのAPI仕様書です
+// @host localhost:8000
 func main() {
 	r := gin.Default()
 	datasource.DbConnect()
@@ -33,5 +38,7 @@ func NewGin(e *gin.Engine) *gin.Engine {
 	gh := handler.NewGachaHandler(gu, cu, uu)
 
 	e = handler.SetApiRoutes(e, uh, ch, gh)
+
+	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return e
 }

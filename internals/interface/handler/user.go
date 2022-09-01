@@ -36,7 +36,28 @@ type UpdateUserRequest struct {
 	Name string `json:"name"`
 }
 
-// ユーザ情報作成
+// @Summary ユーザー一覧を取得するAPI
+// @Router /user/list [get]
+// @Description ユーザー一覧を取得します
+// @Accept application/json
+// @Success 200 {object} string
+// @Failure 400 {object} helper.Error
+func (uh *userHandler) GetUsers(c *gin.Context) {
+	users, err := uh.userUsecase.GetAll()
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": users})
+}
+
+// @Summary 新しいユーザーを作成するAPI
+// @Router /user [post]
+// @Description 新しいユーザーを作成します
+// @Accept application/json
+// @Success 201 {object} string
+// @Failure 400 {object} helper.Error
 func (uh *userHandler) Create(c *gin.Context) {
 	var input CreateUserRequest
 	if err := c.ShouldBindJSON(&input); err != nil {
@@ -54,7 +75,13 @@ func (uh *userHandler) Create(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"token": token})
 }
 
-// ユーザ情報を一件取得
+// @Summary 新しいユーザーを一件取得するAPI
+// @Router /user [get]
+// @Description ユーザーを一件取得する
+// @Accept application/json
+// @Param x-token header string true "x-token"
+// @Success 200 {object} string
+// @Failure 400 {object} helper.Error
 func (uh *userHandler) GetOne(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
@@ -71,18 +98,14 @@ func (uh *userHandler) GetOne(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"name": user.Name})
 }
 
-// 全ユーザーの取得
-func (uh *userHandler) GetUsers(c *gin.Context) {
-	users, err := uh.userUsecase.GetAll()
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": users})
-}
-
-// ユーザ情報を一件更新
+// @Summary ユーザー情報を更新するAPI
+// @Router /user [put]
+// @Description ユーザーを一件更新する
+// @Accept application/json
+// @Param x-token header string true "x-token"
+// @Param name body string true "ユーザー名"
+// @Success 200 {object} string
+// @Failure 400 {object} helper.Error
 func (uh *userHandler) UpdateUser(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 
@@ -112,7 +135,13 @@ func (uh *userHandler) UpdateUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": updatedUser.Name})
 }
 
-// ユーザーの削除
+// @Summary ユーザー情報を削除するAPI
+// @Router /user [delete]
+// @Description ユーザーを一件削除する
+// @Accept application/json
+// @Param x-token header string true "x-token"
+// @Success 204
+// @Failure 400 {object} helper.Error
 func (uh *userHandler) DeleteUser(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
@@ -135,7 +164,13 @@ func (uh *userHandler) DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"data": "Successfully deleted"})
 }
 
-// ユーザ所持キャラクター一覧取得
+// @Summary ユーザー所持キャラクター一覧を取得するAPI
+// @Router /user/characters [get]
+// @Description ユーザー所持キャラクター一覧を取得します
+// @Accept application/json
+// @Param x-token header string true "x-token"
+// @Success 204
+// @Failure 400 {object} helper.Error
 func (uh *userHandler) GetUserCharacters(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")
 	if key == "" {
@@ -159,23 +194,3 @@ func (uh *userHandler) GetUserCharacters(c *gin.Context) {
 
 	c.JSON(http.StatusOK, gin.H{"characters": results})
 }
-
-// func GetEmmitionRate(c *gin.Context) {
-// 	var req GetEmmitionRateRequest
-// 	var characterEmmitionRateResponse []CharacterEmmitionRateResponse
-
-// 	if err := c.ShouldBindQuery(&req); err != nil {
-// 		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-// 		return
-// 	}
-// 	if err := database.DB.Table("gachas").Select("character_emmition_rates.id, character_emmition_rates.character_id, characters.name, character_emmition_rates.emission_rate").
-// 		Joins("INNER JOIN character_emmition_rates ON character_emmition_rates.gacha_id = ?", req.GachaID).
-// 		Joins("INNER JOIN characters ON character_emmition_rates.character_id = characters.id").
-// 		Where("gachas.id = ?", req.GachaID).
-// 		Scan(&characterEmmitionRateResponse).Error; err != nil {
-// 		c.JSON(http.StatusBadRequest, gin.H{"error": "Record not found"})
-// 		panic(err)
-// 	}
-
-// 	c.JSON(http.StatusOK, gin.H{"data": characterEmmitionRateResponse})
-// }
