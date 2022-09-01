@@ -16,6 +16,9 @@ $ docker-compose up  # 移動したディレクトリでコンテナの起動
 
 データベースのコンテナとAPI用のコンテナが起動したら準備完了です。
 
+### API仕様書
+http://localhost:8000/swagger/index.html
+
 ### ユーザーの作成
 ```
 $ curl -X POST http://localhost:8000/user/create -H "Content-Type: application/json" -d '{"name": "任意の名前"}'
