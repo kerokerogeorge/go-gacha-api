@@ -169,7 +169,7 @@ func (gh *gachaHandler) Delete(c *gin.Context) {
 
 	gacha, err := gh.gachaUsecase.Get(req.GachaId)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "record Not Found"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "gacha record Not Found"})
 		return
 	}
 
