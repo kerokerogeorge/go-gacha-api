@@ -1,7 +1,6 @@
 package datasource
 
 import (
-	"log"
 	"time"
 
 	"github.com/jinzhu/gorm"
@@ -35,8 +34,6 @@ func NewCharacterEmmitionRateRepository(database *gorm.DB) *characterEmmitionRat
 }
 
 func (cerr *characterEmmitionRateRepository) SetEmmitionRate(characterWithEmmitionRate *model.CharacterEmmitionRate) error {
-	log.Println("=====characterWithEmmitionRate=====")
-	log.Println(characterWithEmmitionRate)
 	err := cerr.db.Table("character_emmition_rates").Create(characterWithEmmitionRate).Error
 	if err != nil {
 		return err

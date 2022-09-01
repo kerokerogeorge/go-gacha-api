@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"log"
+
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/repository"
 )
@@ -32,5 +34,6 @@ func (cu *characterUsecase) Create(character *model.Character) (*model.Character
 }
 
 func (cu *characterUsecase) GetCharactersWithEmmitionRate(gachaId string) ([]*model.CharacterWithEmmitionRate, error) {
+	log.Println("gachaId", gachaId)
 	return cu.characterEmmitionRateRepo.GetCharacterWithEmmitionRate(gachaId)
 }

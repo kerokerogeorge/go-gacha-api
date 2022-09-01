@@ -15,6 +15,12 @@ type Result struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
+type UserCharacter struct {
+	ID          string `json:"userCharacterId"`
+	CharacterId string `json:"characterId"`
+	Name        string `json:"name"`
+}
+
 func NewResult(userId string, characterId string) (*Result, error) {
 	now := flextime.Now()
 	return &Result{

@@ -2,6 +2,7 @@ package usecase
 
 import (
 	// "log"
+	"log"
 	"math"
 	"math/rand"
 	"time"
@@ -100,6 +101,9 @@ func (gu *gachaUsecase) Draw(charactersWithEmmitionRate []*model.CharacterWithEm
 	num := float64(0)
 	selectedCharacterId := 0
 	for i, v := range s {
+		log.Println("======")
+		log.Println("rand: ", rand)
+		log.Println("======")
 		if num < rand && rand <= num+v {
 			selectedCharacterId = i + 1
 			break

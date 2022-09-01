@@ -12,15 +12,18 @@ type UserUsecase interface {
 	GetAll() ([]*model.User, error)
 	Update(user *model.User, name string) (*model.User, error)
 	Delete(user *model.User) error
+	GetUserCharacters(userId string) ([]*model.UserCharacter, error)
 }
 
 type userUsecase struct {
-	userRepo repository.UserRepository
+	userRepo   repository.UserRepository
+	resultRepo repository.ResultRepository
 }
 
-func NewUserUsecase(ur repository.UserRepository) UserUsecase {
+func NewUserUsecase(ur repository.UserRepository, rr repository.ResultRepository) UserUsecase {
 	return &userUsecase{
-		userRepo: ur,
+		userRepo:   ur,
+		resultRepo: rr,
 	}
 }
 
@@ -47,4 +50,8 @@ func (uu *userUsecase) GetAll() ([]*model.User, error) {
 
 func (uu *userUsecase) Delete(user *model.User) error {
 	return uu.userRepo.DeleteUser(user)
+}
+
+func (uu *userUsecase) GetUserCharacters(userId string) ([]*model.UserCharacter, error) {
+	return uu.resultRepo.GetResults(userId)
 }

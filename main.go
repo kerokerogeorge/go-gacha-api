@@ -20,9 +20,10 @@ func NewGin(e *gin.Engine) *gin.Engine {
 	cr := datasource.NewCharacterRepository(datasource.DB)
 	gr := datasource.NewGachaRepository(datasource.DB)
 	cerr := datasource.NewCharacterEmmitionRateRepository(datasource.DB)
+	rr := datasource.NewResultRepository(datasource.DB)
 
 	// usecase
-	uu := usecase.NewUserUsecase(ur)
+	uu := usecase.NewUserUsecase(ur, rr)
 	cu := usecase.NewCharacterUsecase(cr, cerr)
 	gu := usecase.NewGachaUsecase(gr, cr, cerr)
 

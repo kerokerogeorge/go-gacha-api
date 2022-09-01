@@ -12,11 +12,12 @@ func SetApiRoutes(
 ) *gin.Engine {
 	user := e.Group("/user")
 	{
-		user.GET("", uh.GetOne)            // ユーザ情報取得API
-		user.POST("/create", uh.Create)    // ユーザ情報作成API
-		user.PUT("/update", uh.UpdateUser) // ユーザ情報更新API
-		user.GET("/list", uh.GetUsers)     // ユーザー一覧取得API
-		user.DELETE("", uh.DeleteUser)     // ユーザー削除API
+		user.GET("", uh.GetOne)                       // ユーザ情報取得API
+		user.POST("/create", uh.Create)               // ユーザ情報作成API
+		user.PUT("/update", uh.UpdateUser)            // ユーザ情報更新API
+		user.GET("/list", uh.GetUsers)                // ユーザー一覧取得API
+		user.DELETE("", uh.DeleteUser)                // ユーザー削除API
+		user.GET("/characters", uh.GetUserCharacters) // ユーザー削除API
 	}
 	character := e.Group("/character")
 	{
