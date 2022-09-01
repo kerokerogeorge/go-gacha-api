@@ -1,7 +1,7 @@
 package usecase
 
 import (
-	"log"
+	// "log"
 	"math"
 	"math/rand"
 	"time"
@@ -136,7 +136,6 @@ func (gu *gachaUsecase) GetGachaCharacters(gachaId string) ([]*model.CharacterEm
 
 func (gu *gachaUsecase) DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error {
 	for _, gachaCharacter := range gachaCharacters {
-		log.Println("will delete", gachaCharacter)
 		err := gu.characterEmmitionRateRepo.DeleteGachaCharacter(gachaCharacter)
 		if err != nil {
 			return err
