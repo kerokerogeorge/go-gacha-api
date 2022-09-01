@@ -43,10 +43,6 @@ type DeleteGachaRequest struct {
 	GachaId string `form:"gachaId"`
 }
 
-type GetEmmitionRateRequest struct {
-	GachaID string `form:"gachaId"`
-}
-
 type gachaHandler struct {
 	gachaUsecase     usecase.GachaUsecase
 	characterUsecase usecase.CharacterUsecase

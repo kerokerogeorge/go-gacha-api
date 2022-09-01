@@ -11,6 +11,7 @@ import (
 type CharacterHandler interface {
 	GetCharacters(c *gin.Context)
 	Create(c *gin.Context)
+	GetWithEmmitionRate(c *gin.Context)
 }
 
 type characterHandler struct {
@@ -23,14 +24,12 @@ func NewCharacterHandler(cu usecase.CharacterUsecase) *characterHandler {
 	}
 }
 
-type ResultCharacterResponse struct {
-	Id   string `json:"userCharacterId"`
-	ID   string `json:"characterId"`
+type CreateCharacterRequest struct {
 	Name string `json:"name"`
 }
 
-type CreateCharacterRequest struct {
-	Name string `json:"name"`
+type GetCharactersWithEmmitionRateRequest struct {
+	GachaID string `form:"gachaId"`
 }
 
 type Character struct {
@@ -69,6 +68,23 @@ func (ch *characterHandler) Create(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"data": character})
+}
+
+func (ch *characterHandler) GetWithEmmitionRate(c *gin.Context) {
+	var req GetCharactersWithEmmitionRateRequest
+
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	characters, err := ch.characterUsecase.GetCharactersWithEmmitionRate(req.GachaID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"data": characters})
 }
 
 // // もう使わないAPI

@@ -17,15 +17,13 @@ func SetApiRoutes(
 		user.PUT("/update", uh.UpdateUser)            // ユーザ情報更新API
 		user.GET("/list", uh.GetUsers)                // ユーザー一覧取得API
 		user.DELETE("", uh.DeleteUser)                // ユーザー削除API
-		user.GET("/characters", uh.GetUserCharacters) // ユーザー削除API
+		user.GET("/characters", uh.GetUserCharacters) // ユーザ所持キャラクター一覧取得API
 	}
 	character := e.Group("/character")
 	{
-		character.GET("", ch.GetCharacters) // キャラクター一覧取得API
-		character.POST("", ch.Create)       // 全キャラクターを作成API
-		// // character.PUT("/:id", handler.UpdateCharacter) // キャラクターの排出率の変更
-		// character.GET("/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API
-		// character.GET("/emmition_rates", handler.GetEmmitionRate)
+		character.GET("", ch.GetCharacters)                      // キャラクター一覧取得API
+		character.POST("", ch.Create)                            // 全キャラクターを作成API
+		character.GET("/emmition_rates", ch.GetWithEmmitionRate) // ガチャの持つキャラクターを排出率とともに取得するAPI
 	}
 
 	gacha := e.Group("/gacha")
