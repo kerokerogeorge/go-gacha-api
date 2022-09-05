@@ -2,4 +2,4 @@ README.md
 .git
 .github
 .idea
-/tools
+**/tools/frontend/
