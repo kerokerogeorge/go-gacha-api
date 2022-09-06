@@ -17,7 +17,6 @@ func main() {
 	r := gin.Default()
 	datasource.DbConnect()
 
-	// config := cors.DefaultConfig()
 	config := cors.Config{
 		// アクセス許可するオリジン
 		AllowOrigins: []string{
