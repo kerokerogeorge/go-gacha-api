@@ -17,9 +17,17 @@ func main() {
 	r := gin.Default()
 	datasource.DbConnect()
 
-	config := cors.DefaultConfig()
-	config.AllowOrigins = []string{
-		"http://localhost:3030",
+	// config := cors.DefaultConfig()
+	config := cors.Config{
+		// アクセス許可するオリジン
+		AllowOrigins: []string{
+			"http://localhost:3030",
+		},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		// 許可するHTTPリクエストヘッダ
+		AllowHeaders: []string{"Access-Control-Allow-Headers", "Content-Length", "Content-Type", "Authorization", "x-token"},
+		// cookieなどの情報を必要とするかどうか
+		AllowCredentials: false,
 	}
 	r.Use(cors.New(config))
 	r = NewGin(r)
