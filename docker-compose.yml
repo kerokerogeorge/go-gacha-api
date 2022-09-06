@@ -3,7 +3,7 @@ services:
   server:
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: docker/Dockerfile
     container_name: server
     tty: true
     stdin_open: true
@@ -23,8 +23,8 @@ services:
     ports:
       - '3306:3306'
     volumes:
-      - ./tools/data/my.cnf:/etc/mysql/my.cnf
-      - ./tools/data/initdb.d:/docker-entrypoint-initdb.d
+      - ./docker/db/my.cnf:/etc/mysql/my.cnf
+      - ./docker/db/initdb.d:/docker-entrypoint-initdb.d
     environment:
       MYSQL_ROOT_PASSWORD: '${DB_PASSWORD}'
       MYSQL_DATABASE: '${DB_DATABASE}'
