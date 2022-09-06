@@ -1,3 +1,5 @@
+const apiUri = 'http://localhost:8000'
+
 export default {
   // Disable server-side rendering: https://go.nuxtjs.dev/ssr-mode
   ssr: false,
@@ -17,6 +19,10 @@ export default {
     link: [
       { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
     ]
+  },
+
+  env: {
+    apiUri,
   },
 
   // Global CSS: https://go.nuxtjs.dev/config-css
