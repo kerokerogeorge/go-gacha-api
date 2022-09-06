@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
 	"github.com/kerokerogeorge/go-gacha-api/internals/interface/handler"
@@ -15,6 +16,12 @@ import (
 func main() {
 	r := gin.Default()
 	datasource.DbConnect()
+
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{
+		"http://localhost:3030",
+	}
+	r.Use(cors.New(config))
 	r = NewGin(r)
 	r.Run(":8000")
 }
