@@ -75,6 +75,7 @@ func (uh *userHandler) GetUsers(c *gin.Context) {
 // @Router /user [post]
 // @Description 新しいユーザーを作成します
 // @Accept application/json
+// @Param name body string true "name"
 // @Success 201 {object} CreateUserResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) Create(c *gin.Context) {
