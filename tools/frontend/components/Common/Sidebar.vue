@@ -1,6 +1,6 @@
 <template>
-  <div class="fixed h-screen w-48 z-10 top-0 border-r border-solid border-gray-400">
-    <div class="h-full pt-10">
+  <div class="fixed h-screen w-48 z-30 top-0 border-r border-solid border-gray-400 bg-white">
+    <div class="h-full pt-32">
       <div class="text-gray-600 hover:bg-blue-50 cursor-pointer py-3 px-5" :class="{'current': $route.path === '/user/create'}">
         <NuxtLink :to="{'path':'/user/create'}" class="">
           ユーザー作成
@@ -14,6 +14,11 @@
       <div class="text-gray-600 hover:bg-blue-50 cursor-pointer py-3 px-5" :class="{'current': $route.path === '/gacha'}">
         <NuxtLink :to="{'path':'/gacha'}" class="">
           ガチャ一覧
+        </NuxtLink>
+      </div>
+      <div class="text-gray-600 hover:bg-blue-50 cursor-pointer py-3 px-5" :class="{'current': $route.path === '/gacha/draw'}">
+        <NuxtLink :to="{'path':'/gacha/draw'}" class="">
+          ガチャを引く
         </NuxtLink>
       </div>
       <div class="text-gray-600 hover:bg-blue-50 cursor-pointer py-3 px-5" :class="{'current': $route.path === '/character/create'}">
