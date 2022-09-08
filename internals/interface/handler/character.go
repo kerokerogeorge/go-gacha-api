@@ -29,10 +29,6 @@ type CreateCharacterRequest struct {
 	Name string `json:"name"`
 }
 
-type GetCharactersWithEmmitionRateRequest struct {
-	GachaID string `form:"gachaId"`
-}
-
 // @Summary キャラクター一覧を取得するAPI
 // @Router /character/list [get]
 // @Description 登録されているキャラクター一覧を取得します
@@ -81,18 +77,11 @@ func (ch *characterHandler) Create(c *gin.Context) {
 // @Router /character/emmition_rates [get]
 // @Description キャラクター一覧を排出率とともに取得します
 // @Accept application/json
-// @Param gachaId query string true "gachaId"
+// @Param gachaId path string true "gachaId"
 // @Success 200 {object} []model.CharacterWithEmmitionRate
 // @Failure 400 {object} helper.Error
 func (ch *characterHandler) GetWithEmmitionRate(c *gin.Context) {
-	var req GetCharactersWithEmmitionRateRequest
-
-	if err := c.ShouldBindQuery(&req); err != nil {
-		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	characters, err := ch.characterUsecase.GetCharactersWithEmmitionRate(req.GachaID)
+	characters, err := ch.characterUsecase.GetCharactersWithEmmitionRate(c.Param("gachaId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
 		return
