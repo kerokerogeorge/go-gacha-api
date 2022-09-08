@@ -9,4 +9,5 @@ type CharacterEmmitionRateRepository interface {
 	GetCharacterWithEmmitionRate(gachaId string) ([]*model.CharacterWithEmmitionRate, error)
 	GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error)
 	DeleteGachaCharacter(gachaCharacter *model.CharacterEmmitionRate) error
+	GetGachaCharactersFromCharacterId(characterId string) ([]*model.CharacterEmmitionRate, error)
 }

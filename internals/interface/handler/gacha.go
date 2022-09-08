@@ -62,7 +62,8 @@ func (gh *gachaHandler) List(c *gin.Context) {
 	var res []GachaListResponse
 	gachas, err := gh.gachaUsecase.List()
 	if err != nil {
-		panic(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	for _, gacha := range gachas {
@@ -81,7 +82,8 @@ func (gh *gachaHandler) List(c *gin.Context) {
 func (gh *gachaHandler) Create(c *gin.Context) {
 	gacha, err := gh.gachaUsecase.Create()
 	if err != nil {
-		panic(err)
+		c.AbortWithStatusJSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
 
 	c.JSON(http.StatusOK, &CreateGachaResponse{

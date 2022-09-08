@@ -7,7 +7,7 @@ import (
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
 
-type Result struct {
+type UserCharacter struct {
 	ID          string    `json:"id" gorm:"primary_key"`
 	UserId      string    `json:"userId"`
 	CharacterId string    `json:"characterId"`
@@ -15,15 +15,15 @@ type Result struct {
 	UpdatedAt   time.Time `json:"updatedAt"`
 }
 
-type UserCharacter struct {
+type Result struct {
 	ID          string `json:"userCharacterId"`
 	CharacterId string `json:"characterId"`
 	Name        string `json:"name"`
 }
 
-func NewResult(userId string, characterId string) (*Result, error) {
+func NewUserCharacter(userId string, characterId string) (*UserCharacter, error) {
 	now := flextime.Now()
-	return &Result{
+	return &UserCharacter{
 		UserId:      userId,
 		CharacterId: characterId,
 		CreatedAt:   now,

@@ -9,21 +9,21 @@ import (
 type UserUsecase interface {
 	Create(name string) (string, error)
 	Get(token string) (*model.User, error)
-	GetAll() ([]*model.User, error)
+	List() ([]*model.User, error)
 	Update(user *model.User, name string) (*model.User, error)
 	Delete(user *model.User) error
-	GetUserCharacters(userId string) ([]*model.UserCharacter, error)
+	GetUserCharacters(userId string) ([]*model.Result, error)
 }
 
 type userUsecase struct {
-	userRepo   repository.UserRepository
-	resultRepo repository.ResultRepository
+	userRepo           repository.UserRepository
+	userCharcacterRepo repository.UserCharcacterRepository
 }
 
-func NewUserUsecase(ur repository.UserRepository, rr repository.ResultRepository) UserUsecase {
+func NewUserUsecase(ur repository.UserRepository, rr repository.UserCharcacterRepository) UserUsecase {
 	return &userUsecase{
-		userRepo:   ur,
-		resultRepo: rr,
+		userRepo:           ur,
+		userCharcacterRepo: rr,
 	}
 }
 
@@ -44,7 +44,7 @@ func (uu *userUsecase) Update(user *model.User, name string) (*model.User, error
 	return uu.userRepo.UpdateUser(user, name)
 }
 
-func (uu *userUsecase) GetAll() ([]*model.User, error) {
+func (uu *userUsecase) List() ([]*model.User, error) {
 	return uu.userRepo.GetUsers()
 }
 
@@ -52,6 +52,6 @@ func (uu *userUsecase) Delete(user *model.User) error {
 	return uu.userRepo.DeleteUser(user)
 }
 
-func (uu *userUsecase) GetUserCharacters(userId string) ([]*model.UserCharacter, error) {
-	return uu.resultRepo.GetResults(userId)
+func (uu *userUsecase) GetUserCharacters(userId string) ([]*model.Result, error) {
+	return uu.userCharcacterRepo.GetResults(userId)
 }

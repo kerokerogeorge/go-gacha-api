@@ -71,10 +71,11 @@ func (cerr *characterEmmitionRateRepository) DeleteGachaCharacter(gachaCharacter
 	return nil
 }
 
-// func (cerr *characterEmmitionRateRepository) ToCharacterWithEmmitionRateModel(characterEmmitionRate []*CharacterWithEmmitionRate) *model.CharacterWithEmmitionRate {
-// 	return &model.CharacterWithEmmitionRate{
-// 		CharacterID:   characterEmmitionRate.CharacterID,
-// 		CharacterName: characterEmmitionRate.Name,
-// 		EmissionRate:  characterEmmitionRate.EmissionRate,
-// 	}
-// }
+func (cerr *characterEmmitionRateRepository) GetGachaCharactersFromCharacterId(characterId string) ([]*model.CharacterEmmitionRate, error) {
+	var gachaCharacters []*model.CharacterEmmitionRate
+	err := cerr.db.Table("character_emmition_rates").Where("character_id = ?", characterId).Find(&gachaCharacters).Error
+	if err != nil {
+		return nil, err
+	}
+	return gachaCharacters, nil
+}

@@ -2,9 +2,10 @@ package usecase
 
 import (
 	// "log"
-	"log"
+	"errors"
 	"math"
 	"math/rand"
+	"strconv"
 	"time"
 
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
@@ -42,7 +43,7 @@ func (gu *gachaUsecase) Create() (*model.Gacha, error) {
 	}
 
 	if len(characters) == 0 {
-		return nil, nil
+		return nil, errors.New("no characters")
 	}
 
 	newGacha, err := model.NewGacha()
@@ -99,13 +100,10 @@ func (gu *gachaUsecase) Draw(charactersWithEmmitionRate []*model.CharacterWithEm
 
 	// 重みづけをした数値をnum=0から足していき、numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれているか検証
 	num := float64(0)
-	selectedCharacterId := 0
+	var selectedCharacterId int
 	for i, v := range s {
-		log.Println("======")
-		log.Println("rand: ", rand)
-		log.Println("======")
 		if num < rand && rand <= num+v {
-			selectedCharacterId = i + 1
+			selectedCharacterId, _ = strconv.Atoi(charactersWithEmmitionRate[i].CharacterID)
 			break
 		} else {
 			num += v
@@ -117,7 +115,7 @@ func (gu *gachaUsecase) Draw(charactersWithEmmitionRate []*model.CharacterWithEm
 		return nil, err
 	}
 
-	newResult, err := model.NewResult(userId, character.ID)
+	newResult, err := model.NewUserCharacter(userId, character.ID)
 	if err != nil {
 		return nil, err
 	}
