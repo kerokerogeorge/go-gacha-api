@@ -1,6 +1,11 @@
 <template>
   <div class="fixed h-screen w-48 z-30 top-0 border-r border-solid border-gray-400 bg-white">
     <div class="h-full pt-32">
+      <div class="text-gray-600 hover:bg-blue-50 cursor-pointer py-3 px-5" :class="{'current': $route.path === '/'}">
+        <NuxtLink :to="{'path':'/'}" class="">
+          ホーム
+        </NuxtLink>
+      </div>
       <div class="text-gray-600 hover:bg-blue-50 cursor-pointer py-3 px-5" :class="{'current': $route.path === '/user/create'}">
         <NuxtLink :to="{'path':'/user/create'}" class="">
           ユーザー作成
