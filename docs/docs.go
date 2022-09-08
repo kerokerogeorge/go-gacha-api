@@ -411,7 +411,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.UserCharacter"
+                                "$ref": "#/definitions/model.Result"
                             }
                         }
                     },
@@ -588,7 +588,7 @@ const docTemplate = `{
                 }
             }
         },
-        "model.UserCharacter": {
+        "model.Result": {
             "type": "object",
             "properties": {
                 "characterId": {
