@@ -16,8 +16,18 @@ $ docker-compose up  # 移動したディレクトリでコンテナの起動
 
 データベースのコンテナとAPI用のコンテナが起動したら準備完了です。
 
-### API仕様書
+## API仕様書
 http://localhost:8000/swagger/index.html
+
+## ローカルでのAPI確認方法
+```
+$ cd go-gacha-api/   # ディレクトリへ移動
+$ docker-compose up -d # 移動したディレクトリでコンテナの起動
+$ cd tools/frontend
+$ npm run dev
+
+http://localhost:8080　にアクセス
+```
 
 ### ユーザーの作成
 ```
