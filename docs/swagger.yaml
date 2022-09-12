@@ -1,0 +1,416 @@
+definitions:
+  handler.CreateGachaResponse:
+    properties:
+      id:
+        type: string
+    type: object
+  handler.CreateUserResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  handler.GachaListResponse:
+    properties:
+      gachaId:
+        type: string
+    type: object
+  handler.GachaResultResponse:
+    properties:
+      characterId:
+        type: string
+      name:
+        type: string
+    type: object
+  handler.GetGachaResponse:
+    properties:
+      characters:
+        items:
+          $ref: '#/definitions/model.CharacterWithEmmitionRate'
+        type: array
+      gachaId:
+        type: string
+    type: object
+  handler.GetUserResponse:
+    properties:
+      name:
+        type: string
+    type: object
+  handler.UpdateUserResponse:
+    properties:
+      name:
+        type: string
+    type: object
+  handler.UserListResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/model.User'
+        type: array
+    type: object
+  helper.Error:
+    properties:
+      errors:
+        items:
+          type: string
+        type: array
+    type: object
+  model.Character:
+    properties:
+      createdAt:
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+  model.CharacterWithEmmitionRate:
+    properties:
+      characterId:
+        type: string
+      emissionRate:
+        type: integer
+      name:
+        type: string
+    type: object
+  model.Result:
+    properties:
+      characterId:
+        type: string
+      name:
+        type: string
+      userCharacterId:
+        type: string
+    type: object
+  model.User:
+    properties:
+      createdAt:
+        description: Characters []*Character `json:"characters"`
+        type: string
+      id:
+        type: string
+      name:
+        type: string
+      token:
+        type: string
+      updatedAt:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: ガチャアプリのAPI仕様書です
+  title: Gacha-API Docs
+paths:
+  /character:
+    post:
+      consumes:
+      - application/json
+      description: 新しいキャラクターを作成します
+      parameters:
+      - description: name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.Character'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: キャラクターを作成するAPI
+  /character/{characterId}:
+    delete:
+      consumes:
+      - application/json
+      description: キャラクターを一件削除します
+      parameters:
+      - description: characterId
+        in: path
+        name: characterId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: キャラクターを削除するAPI
+  /character/emmition_rates:
+    get:
+      consumes:
+      - application/json
+      description: キャラクター一覧を排出率とともに取得します
+      parameters:
+      - description: gachaId
+        in: path
+        name: gachaId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.CharacterWithEmmitionRate'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: キャラクター一覧を排出率とともに取得するAPI
+  /character/list:
+    get:
+      consumes:
+      - application/json
+      description: 登録されているキャラクター一覧を取得します
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Character'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: キャラクター一覧を取得するAPI
+  /gacha:
+    post:
+      consumes:
+      - application/json
+      description: 新しいガチャを作成し、排出率をキャラクターに割り当てます
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateGachaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: 新しいガチャを作成するAPI
+  /gacha/{gachaId}:
+    delete:
+      consumes:
+      - application/json
+      description: ガチャを一件削除します
+      parameters:
+      - description: gachaId
+        in: path
+        name: gachaId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ガチャを削除するAPI
+    get:
+      consumes:
+      - application/json
+      description: 新しいガチャと登録されているキャラクターの排出率を取得する
+      parameters:
+      - description: gachaId
+        in: path
+        name: gachaId
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.GetGachaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ガチャを一件取得するAPI
+  /gacha/draw/{gachaId}:
+    post:
+      consumes:
+      - application/json
+      description: ガチャを実行し、キャラクターを取得します
+      parameters:
+      - description: x-token
+        in: header
+        name: x-token
+        required: true
+        type: string
+      - description: gachaId
+        in: path
+        name: gachaId
+        required: true
+        type: string
+      - description: ガチャを実行する回数
+        in: body
+        name: times
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.GachaResultResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ガチャを実行するAPI
+  /gacha/list:
+    get:
+      consumes:
+      - application/json
+      description: ガチャ一覧を取得します
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/handler.GachaListResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ガチャ一覧を取得するAPI
+  /user:
+    delete:
+      consumes:
+      - application/json
+      description: ユーザーを一件削除する
+      parameters:
+      - description: x-token
+        in: header
+        name: x-token
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ユーザー情報を削除するAPI
+    get:
+      consumes:
+      - application/json
+      description: ユーザーを一件取得する
+      parameters:
+      - description: x-token
+        in: header
+        name: x-token
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.GetUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: 新しいユーザーを一件取得するAPI
+    post:
+      consumes:
+      - application/json
+      description: 新しいユーザーを作成します
+      parameters:
+      - description: name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/handler.CreateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: 新しいユーザーを作成するAPI
+    put:
+      consumes:
+      - application/json
+      description: ユーザーを一件更新する
+      parameters:
+      - description: x-token
+        in: header
+        name: x-token
+        required: true
+        type: string
+      - description: ユーザー名
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.UpdateUserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ユーザー情報を更新するAPI
+  /user/characters:
+    get:
+      consumes:
+      - application/json
+      description: ユーザー所持キャラクター一覧を取得します
+      parameters:
+      - description: x-token
+        in: header
+        name: x-token
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Result'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ユーザー所持キャラクター一覧を取得するAPI
+  /user/list:
+    get:
+      consumes:
+      - application/json
+      description: ユーザー一覧を取得します
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.UserListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: ユーザー一覧を取得するAPI
+swagger: "2.0"

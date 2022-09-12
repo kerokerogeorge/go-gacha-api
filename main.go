@@ -1,35 +1,58 @@
 package main
 
 import (
-	"log"
-
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	database "github.com/kerokerogeorge/go-gacha-api/database"
-	"github.com/kerokerogeorge/go-gacha-api/handler"
+	"github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
+	"github.com/kerokerogeorge/go-gacha-api/internals/interface/handler"
+	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
+// @title Gacha-API Docs
+// @description ガチャアプリのAPI仕様書です
+// @host localhost:8000
 func main() {
-	log.Println("/* ===========START============ */")
 	r := gin.Default()
-	database.DbConnect()
+	datasource.DbConnect()
 
-	// 仕様書のユーザ関連API
-	r.POST("/user/create", handler.CreateUser) // ユーザ情報作成API
-	r.GET("/user/get", handler.GetUser)        // ユーザ情報取得API
-	r.PUT("/user/update", handler.UpdateUser)  // ユーザ情報更新API
-
-	// 仕様書のガチャ関連API
-	r.POST("/gacha/draw", handler.GetCharacter) // ガチャ実行API
-
-	// 仕様書のキャラクター関連API
-	r.GET("/character/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API
-
-	log.Println("/* ===========開発用API============ */")
-	// 開発用API
-	r.GET("/user", handler.GetUsers)                 // 全ユーザーの取得
-	r.DELETE("/user", handler.DeleteUser)            // ユーザーの削除
-	r.GET("/character", handler.GetCharacters)       // 全キャラクターを取得
-	r.PUT("/character/:id", handler.UpdateCharacter) // キャラクターの排出率の変更
-
+	config := cors.Config{
+		// アクセス許可するオリジン
+		AllowOrigins: []string{
+			"http://localhost:3030",
+		},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		// 許可するHTTPリクエストヘッダ
+		AllowHeaders: []string{"Access-Control-Allow-Headers", "Content-Length", "Content-Type", "Authorization", "x-token"},
+		// cookieなどの情報を必要とするかどうか
+		AllowCredentials: false,
+	}
+	r.Use(cors.New(config))
+	r = NewGin(r)
 	r.Run(":8000")
+}
+
+func NewGin(e *gin.Engine) *gin.Engine {
+	// datasource
+	ur := datasource.NewUserRepository(datasource.DB)
+	cr := datasource.NewCharacterRepository(datasource.DB)
+	gr := datasource.NewGachaRepository(datasource.DB)
+	cerr := datasource.NewCharacterEmmitionRateRepository(datasource.DB)
+	rr := datasource.NewResultRepository(datasource.DB)
+
+	// usecase
+	uu := usecase.NewUserUsecase(ur, rr)
+	cu := usecase.NewCharacterUsecase(cr, cerr, rr)
+	gu := usecase.NewGachaUsecase(gr, cr, cerr)
+
+	// handler
+	uh := handler.NewUserHandler(uu)
+	ch := handler.NewCharacterHandler(cu)
+	gh := handler.NewGachaHandler(gu, cu, uu)
+
+	e = handler.SetApiRoutes(e, uh, ch, gh)
+
+	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	return e
 }
