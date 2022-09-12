@@ -1,42 +1,37 @@
 package main
 
 import (
-	"log"
-
 	"github.com/gin-gonic/gin"
-	database "github.com/kerokerogeorge/go-gacha-api/database"
-	"github.com/kerokerogeorge/go-gacha-api/handler"
+	"github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
+	"github.com/kerokerogeorge/go-gacha-api/internals/interface/handler"
+	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 )
 
 func main() {
-	log.Println("/* ===========START============ */")
 	r := gin.Default()
-	database.DbConnect()
-
-	// 仕様書のユーザ関連API
-	r.POST("/user/create", handler.CreateUser) // ユーザ情報作成API
-	r.GET("/user/get", handler.GetUser)        // ユーザ情報取得API
-	r.PUT("/user/update", handler.UpdateUser)  // ユーザ情報更新API
-
-	// 仕様書のガチャ関連API
-	r.POST("/gacha/draw", handler.GetCharacter) // ガチャ実行API
-	// 新しいAPI
-	r.POST("/gacha/create", handler.CreateGacha)
-	r.GET("/gacha/list", handler.GetGachaList)
-	r.GET("/character/emmition_rates", handler.GetEmmitionRate)
-	r.DELETE("/gacha", handler.DeleteGacha)
-	r.GET("/gacha", handler.GetGacha)
-
-	// 仕様書のキャラクター関連API
-	r.GET("/character/list", handler.GetCharacterList) // ユーザ所持キャラクター一覧取得API
-
-	log.Println("/* ===========開発用API============ */")
-	// 開発用API
-	r.GET("/user", handler.GetUsers)                 // 全ユーザーの取得
-	r.DELETE("/user", handler.DeleteUser)            // ユーザーの削除
-	r.GET("/character", handler.GetCharacters)       // 全キャラクターを取得
-	r.POST("/character", handler.CreateCharacter)    // 全キャラクターを作成
-	r.PUT("/character/:id", handler.UpdateCharacter) // キャラクターの排出率の変更
-
+	datasource.DbConnect()
+	r = NewGin(r)
 	r.Run(":8000")
+}
+
+func NewGin(e *gin.Engine) *gin.Engine {
+	// datasource
+	ur := datasource.NewUserRepository(datasource.DB)
+	cr := datasource.NewCharacterRepository(datasource.DB)
+	gr := datasource.NewGachaRepository(datasource.DB)
+	cerr := datasource.NewCharacterEmmitionRateRepository(datasource.DB)
+	rr := datasource.NewResultRepository(datasource.DB)
+
+	// usecase
+	uu := usecase.NewUserUsecase(ur, rr)
+	cu := usecase.NewCharacterUsecase(cr, cerr)
+	gu := usecase.NewGachaUsecase(gr, cr, cerr)
+
+	// handler
+	uh := handler.NewUserHandler(uu)
+	ch := handler.NewCharacterHandler(cu)
+	gh := handler.NewGachaHandler(gu, cu, uu)
+
+	e = handler.SetApiRoutes(e, uh, ch, gh)
+	return e
 }
