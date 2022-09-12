@@ -23,18 +23,19 @@ func SetApiRoutes(
 	}
 	character := e.Group("/character")
 	{
-		character.GET("/list", ch.GetCharacters)                 // キャラクター一覧取得API
-		character.POST("", ch.Create)                            // 全キャラクターを作成API
-		character.GET("/emmition_rates", ch.GetWithEmmitionRate) // ガチャの持つキャラクターを排出率とともに取得するAPI
+		character.GET("/list", ch.GetCharacters)                          // キャラクター一覧取得API
+		character.POST("", ch.Create)                                     // 全キャラクターを作成API
+		character.GET("/emmition_rates/:gachaId", ch.GetWithEmmitionRate) // ガチャの持つキャラクターを排出率とともに取得するAPI
+		character.DELETE("/:characterId", ch.Delete)                      // キャラクター削除API
 	}
 
 	gacha := e.Group("/gacha")
 	{
-		gacha.GET("/list", gh.List)  // キャラクター一覧取得API
-		gacha.POST("", gh.Create)    // ガチャ作成API
-		gacha.GET("", gh.Get)        // 一件のガチャ取得API
-		gacha.POST("/draw", gh.Draw) // ガチャ実行API
-		gacha.DELETE("", gh.Delete)  // ガチャ削除API
+		gacha.GET("/list", gh.List)           // キャラクター一覧取得API
+		gacha.POST("", gh.Create)             // ガチャ作成API
+		gacha.GET("/:gachaId", gh.Get)        // 一件のガチャ取得API
+		gacha.POST("/draw/:gachaId", gh.Draw) // ガチャ実行API
+		gacha.DELETE("/:gachaId", gh.Delete)  // ガチャ削除API
 	}
 	return e
 }

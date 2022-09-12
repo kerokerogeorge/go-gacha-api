@@ -1,3 +1,4 @@
-main.txt
 tmp/air.log
 tmp/main
+.env
+.idea

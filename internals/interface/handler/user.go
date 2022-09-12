@@ -60,7 +60,7 @@ type UserListResponse struct {
 // @Success 200 {object} UserListResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) GetUsers(c *gin.Context) {
-	users, err := uh.userUsecase.GetAll()
+	users, err := uh.userUsecase.List()
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -75,6 +75,7 @@ func (uh *userHandler) GetUsers(c *gin.Context) {
 // @Router /user [post]
 // @Description 新しいユーザーを作成します
 // @Accept application/json
+// @Param name body string true "name"
 // @Success 201 {object} CreateUserResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) Create(c *gin.Context) {
@@ -194,7 +195,7 @@ func (uh *userHandler) DeleteUser(c *gin.Context) {
 // @Description ユーザー所持キャラクター一覧を取得します
 // @Accept application/json
 // @Param x-token header string true "x-token"
-// @Success 200 {object} []model.UserCharacter
+// @Success 200 {object} []model.Result
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) GetUserCharacters(c *gin.Context) {
 	key := c.Request.Header.Get("x-token")

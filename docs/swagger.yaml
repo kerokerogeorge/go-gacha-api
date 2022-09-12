@@ -23,7 +23,7 @@ definitions:
     type: object
   handler.GetGachaResponse:
     properties:
-      character:
+      characters:
         items:
           $ref: '#/definitions/model.CharacterWithEmmitionRate'
         type: array
@@ -74,6 +74,15 @@ definitions:
       name:
         type: string
     type: object
+  model.Result:
+    properties:
+      characterId:
+        type: string
+      name:
+        type: string
+      userCharacterId:
+        type: string
+    type: object
   model.User:
     properties:
       createdAt:
@@ -86,15 +95,6 @@ definitions:
       token:
         type: string
       updatedAt:
-        type: string
-    type: object
-  model.UserCharacter:
-    properties:
-      characterId:
-        type: string
-      name:
-        type: string
-      userCharacterId:
         type: string
     type: object
 host: localhost:8000
@@ -125,6 +125,25 @@ paths:
           schema:
             $ref: '#/definitions/helper.Error'
       summary: キャラクターを作成するAPI
+  /character/{characterId}:
+    delete:
+      consumes:
+      - application/json
+      description: キャラクターを一件削除します
+      parameters:
+      - description: characterId
+        in: path
+        name: characterId
+        required: true
+        type: string
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: キャラクターを削除するAPI
   /character/emmition_rates:
     get:
       consumes:
@@ -132,7 +151,7 @@ paths:
       description: キャラクター一覧を排出率とともに取得します
       parameters:
       - description: gachaId
-        in: query
+        in: path
         name: gachaId
         required: true
         type: string
@@ -166,13 +185,28 @@ paths:
             $ref: '#/definitions/helper.Error'
       summary: キャラクター一覧を取得するAPI
   /gacha:
+    post:
+      consumes:
+      - application/json
+      description: 新しいガチャを作成し、排出率をキャラクターに割り当てます
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.CreateGachaResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/helper.Error'
+      summary: 新しいガチャを作成するAPI
+  /gacha/{gachaId}:
     delete:
       consumes:
       - application/json
       description: ガチャを一件削除します
       parameters:
       - description: gachaId
-        in: query
+        in: path
         name: gachaId
         required: true
         type: string
@@ -190,7 +224,7 @@ paths:
       description: 新しいガチャと登録されているキャラクターの排出率を取得する
       parameters:
       - description: gachaId
-        in: query
+        in: path
         name: gachaId
         required: true
         type: string
@@ -204,21 +238,7 @@ paths:
           schema:
             $ref: '#/definitions/helper.Error'
       summary: ガチャを一件取得するAPI
-    post:
-      consumes:
-      - application/json
-      description: 新しいガチャを作成し、排出率をキャラクターに割り当てます
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.CreateGachaResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/helper.Error'
-      summary: 新しいガチャを作成するAPI
-  /gacha/draw:
+  /gacha/draw/{gachaId}:
     post:
       consumes:
       - application/json
@@ -230,11 +250,10 @@ paths:
         required: true
         type: string
       - description: gachaId
-        in: body
+        in: path
         name: gachaId
         required: true
-        schema:
-          type: string
+        type: string
       - description: ガチャを実行する回数
         in: body
         name: times
@@ -313,6 +332,13 @@ paths:
       consumes:
       - application/json
       description: 新しいユーザーを作成します
+      parameters:
+      - description: name
+        in: body
+        name: name
+        required: true
+        schema:
+          type: string
       responses:
         "201":
           description: Created
@@ -365,7 +391,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/model.UserCharacter'
+              $ref: '#/definitions/model.Result'
             type: array
         "400":
           description: Bad Request

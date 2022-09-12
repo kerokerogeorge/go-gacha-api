@@ -62,7 +62,7 @@ const docTemplate = `{
                         "type": "string",
                         "description": "gachaId",
                         "name": "gachaId",
-                        "in": "query",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -111,28 +111,25 @@ const docTemplate = `{
                 }
             }
         },
-        "/gacha": {
-            "get": {
-                "description": "新しいガチャと登録されているキャラクターの排出率を取得する",
+        "/character/{characterId}": {
+            "delete": {
+                "description": "キャラクターを一件削除します",
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "ガチャを一件取得するAPI",
+                "summary": "キャラクターを削除するAPI",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "gachaId",
-                        "name": "gachaId",
-                        "in": "query",
+                        "description": "characterId",
+                        "name": "characterId",
+                        "in": "path",
                         "required": true
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.GetGachaResponse"
-                        }
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -141,7 +138,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
+            }
+        },
+        "/gacha": {
             "post": {
                 "description": "新しいガチャを作成し、排出率をキャラクターに割り当てます",
                 "consumes": [
@@ -162,36 +161,9 @@ const docTemplate = `{
                         }
                     }
                 }
-            },
-            "delete": {
-                "description": "ガチャを一件削除します",
-                "consumes": [
-                    "application/json"
-                ],
-                "summary": "ガチャを削除するAPI",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "gachaId",
-                        "name": "gachaId",
-                        "in": "query",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content"
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/helper.Error"
-                        }
-                    }
-                }
             }
         },
-        "/gacha/draw": {
+        "/gacha/draw/{gachaId}": {
             "post": {
                 "description": "ガチャを実行し、キャラクターを取得します",
                 "consumes": [
@@ -207,13 +179,11 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
                         "description": "gachaId",
                         "name": "gachaId",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "description": "ガチャを実行する回数",
@@ -260,6 +230,65 @@ const docTemplate = `{
                                 "$ref": "#/definitions/handler.GachaListResponse"
                             }
                         }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            }
+        },
+        "/gacha/{gachaId}": {
+            "get": {
+                "description": "新しいガチャと登録されているキャラクターの排出率を取得する",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ガチャを一件取得するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "gachaId",
+                        "name": "gachaId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.GetGachaResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/helper.Error"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "ガチャを一件削除します",
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "ガチャを削除するAPI",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "gachaId",
+                        "name": "gachaId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
                     },
                     "400": {
                         "description": "Bad Request",
@@ -346,6 +375,17 @@ const docTemplate = `{
                     "application/json"
                 ],
                 "summary": "新しいユーザーを作成するAPI",
+                "parameters": [
+                    {
+                        "description": "name",
+                        "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
                         "description": "Created",
@@ -411,7 +451,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/model.UserCharacter"
+                                "$ref": "#/definitions/model.Result"
                             }
                         }
                     },
@@ -487,7 +527,7 @@ const docTemplate = `{
         "handler.GetGachaResponse": {
             "type": "object",
             "properties": {
-                "character": {
+                "characters": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/model.CharacterWithEmmitionRate"
@@ -567,6 +607,20 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Result": {
+            "type": "object",
+            "properties": {
+                "characterId": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "userCharacterId": {
+                    "type": "string"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {
@@ -584,20 +638,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updatedAt": {
-                    "type": "string"
-                }
-            }
-        },
-        "model.UserCharacter": {
-            "type": "object",
-            "properties": {
-                "characterId": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                },
-                "userCharacterId": {
                     "type": "string"
                 }
             }

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
 	"github.com/kerokerogeorge/go-gacha-api/internals/interface/handler"
@@ -15,6 +16,19 @@ import (
 func main() {
 	r := gin.Default()
 	datasource.DbConnect()
+
+	config := cors.Config{
+		// アクセス許可するオリジン
+		AllowOrigins: []string{
+			"http://localhost:3030",
+		},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		// 許可するHTTPリクエストヘッダ
+		AllowHeaders: []string{"Access-Control-Allow-Headers", "Content-Length", "Content-Type", "Authorization", "x-token"},
+		// cookieなどの情報を必要とするかどうか
+		AllowCredentials: false,
+	}
+	r.Use(cors.New(config))
 	r = NewGin(r)
 	r.Run(":8000")
 }
@@ -29,7 +43,7 @@ func NewGin(e *gin.Engine) *gin.Engine {
 
 	// usecase
 	uu := usecase.NewUserUsecase(ur, rr)
-	cu := usecase.NewCharacterUsecase(cr, cerr)
+	cu := usecase.NewCharacterUsecase(cr, cerr, rr)
 	gu := usecase.NewGachaUsecase(gr, cr, cerr)
 
 	// handler
