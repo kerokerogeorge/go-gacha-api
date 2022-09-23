@@ -56,6 +56,7 @@ func (ur *characterRepository) ToCharacterModel(character Character) *model.Char
 	return &model.Character{
 		ID:        character.ID,
 		Name:      character.Name,
+		ImgUrl:    character.ImgUrl,
 		CreatedAt: character.CreatedAt,
 		UpdatedAt: character.UpdatedAt,
 	}

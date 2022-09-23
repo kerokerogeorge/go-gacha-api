@@ -19,6 +19,7 @@ type Result struct {
 	ID          string `json:"userCharacterId"`
 	CharacterId string `json:"characterId"`
 	Name        string `json:"name"`
+	ImgUrl      string `json:"imgUrl"`
 }
 
 func NewUserCharacter(userId string, characterId string) (*UserCharacter, error) {

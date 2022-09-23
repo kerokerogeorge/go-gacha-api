@@ -30,8 +30,10 @@ type CreateGachaRequest struct {
 }
 
 type GachaResultResponse struct {
-	ID   string `json:"characterId"`
-	Name string `json:"name"`
+	ID           string  `json:"characterId"`
+	Name         string  `json:"name"`
+	ImgUrl       string  `json:"imgUrl"`
+	EmmitionRate float64 `json:"emmitionRate"`
 }
 
 type CreateGachaResponse struct {
@@ -155,13 +157,13 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 
 	var results []*GachaResultResponse
 	for i := 0; i < req.Times; i++ {
-		character, err := gh.gachaUsecase.Draw(charactersWithEmmitionRate, user.ID)
+		character, emmitionRate, err := gh.gachaUsecase.Draw(charactersWithEmmitionRate, user.ID)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "draw gacha failed"})
 			return
 		}
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
-		res := &GachaResultResponse{ID: character.ID, Name: character.Name}
+		res := &GachaResultResponse{ID: character.ID, Name: character.Name, ImgUrl: character.ImgUrl, EmmitionRate: emmitionRate}
 		results = append(results, res)
 	}
 
