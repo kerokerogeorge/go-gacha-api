@@ -16,6 +16,7 @@ CREATE TABLE IF NOT EXISTS characters
 (
     id             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
     name           varchar(36) DEFAULT NULL COMMENT 'キャラクター名',
+    img_url        varchar(255) DEFAULT NULL COMMENT '画像URL',
     created_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
     updated_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
     PRIMARY KEY (id)

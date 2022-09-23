@@ -11,6 +11,7 @@ type User struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
 	Token     string    `json:"token"`
+	Address   string    `json:"address"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -25,8 +26,8 @@ func NewUserRepository(database *gorm.DB) *userRepository {
 	}
 }
 
-func (ur *userRepository) CreateUser(name string, token string) (string, error) {
-	user := model.User{Name: name, Token: token}
+func (ur *userRepository) CreateUser(name string, token string, address string) (string, error) {
+	user := model.User{Name: name, Token: token, Address: address}
 	database := ur.db.Table("users").Create(&user)
 	if database.Error != nil {
 		return "", database.Error

@@ -8,7 +8,7 @@ import (
 )
 
 type CharacterEmmitionRate struct {
-	ID           string    `json:"id" gorm:"primary_key"`
+	ID           string    `json:"id"`
 	GachaID      string    `json:"gachaId"`
 	CharacterID  string    `json:"characterId"`
 	EmissionRate int       `json:"emissionRate"`
