@@ -30,7 +30,8 @@ func NewUserHandler(uu usecase.UserUsecase) *userHandler {
 }
 
 type CreateUserRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	Address string `json:"address" binding:"required"`
 }
 
 type UpdateUserRequest struct {
@@ -76,6 +77,7 @@ func (uh *userHandler) GetUsers(c *gin.Context) {
 // @Description 新しいユーザーを作成します
 // @Accept application/json
 // @Param name body string true "name"
+// @Param address body string true "address"
 // @Success 201 {object} CreateUserResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) Create(c *gin.Context) {
@@ -85,7 +87,9 @@ func (uh *userHandler) Create(c *gin.Context) {
 		return
 	}
 
-	token, err := uh.userUsecase.Create(input.Name)
+	log.Println(input)
+
+	token, err := uh.userUsecase.Create(input.Name, input.Address)
 	if err != nil {
 		log.Println(err, gin.H{"error": err})
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})

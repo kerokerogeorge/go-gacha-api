@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -26,7 +27,8 @@ func NewCharacterHandler(cu usecase.CharacterUsecase) *characterHandler {
 }
 
 type CreateCharacterRequest struct {
-	Name string `json:"name"`
+	Name   string `json:"name"`
+	ImgUrl string `json:"imgUrl"`
 }
 
 // @Summary キャラクター一覧を取得するAPI
@@ -50,6 +52,7 @@ func (ch *characterHandler) GetCharacters(c *gin.Context) {
 // @Description 新しいキャラクターを作成します
 // @Accept application/json
 // @Param name body string true "name"
+// @Param imgUrl body string true "imgUrl"
 // @Success 200 {object} model.Character
 // @Failure 400 {object} helper.Error
 func (ch *characterHandler) Create(c *gin.Context) {
@@ -59,7 +62,8 @@ func (ch *characterHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	newCharacter, err := model.NewCharacter(req.Name)
+	log.Println(req)
+	newCharacter, err := model.NewCharacter(req.Name, req.ImgUrl)
 	if err != nil {
 		panic(err)
 	}

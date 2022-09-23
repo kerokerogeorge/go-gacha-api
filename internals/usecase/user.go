@@ -7,7 +7,7 @@ import (
 )
 
 type UserUsecase interface {
-	Create(name string) (string, error)
+	Create(name string, address string) (string, error)
 	Get(token string) (*model.User, error)
 	List() ([]*model.User, error)
 	Update(user *model.User, name string) (*model.User, error)
@@ -27,13 +27,13 @@ func NewUserUsecase(ur repository.UserRepository, rr repository.UserCharcacterRe
 	}
 }
 
-func (uu *userUsecase) Create(name string) (string, error) {
+func (uu *userUsecase) Create(name string, address string) (string, error) {
 	token, err := uuid.NewRandom()
 	if err != nil {
 		return "", err
 	}
 
-	return uu.userRepo.CreateUser(name, token.String())
+	return uu.userRepo.CreateUser(name, token.String(), address)
 }
 
 func (uu *userUsecase) Get(token string) (*model.User, error) {

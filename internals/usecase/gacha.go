@@ -125,6 +125,11 @@ func (gu *gachaUsecase) Draw(charactersWithEmmitionRate []*model.CharacterWithEm
 		return nil, err
 	}
 
+	err = gu.gachaRepo.TransferToken()
+	if err != nil {
+		return nil, err
+	}
+
 	return character, nil
 }
 
