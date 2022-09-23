@@ -14,6 +14,12 @@
           <div>
             {{ symbol ? symbol : '-' }}トークン: {{ balance ? balance : '-' }}
           </div>
+          <div>
+            選択中のユーザー: {{ token ? token : '-' }}
+          </div>
+          <div>
+            選択中のガチャ: {{ gachaId ? gachaId : '-' }}
+          </div>
         </div>
       </div>
       <div v-if="!isConnected" class="ml-auto w-auto pr-5">
@@ -56,6 +62,10 @@ export default {
   computed: {
     ...mapGetters('token', [
       'isConnected'
+    ]),
+    ...mapGetters('gacha', [
+      'gachaId',
+      'token'
     ]),
   },
   async mounted () {

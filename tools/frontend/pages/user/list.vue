@@ -25,7 +25,10 @@
               <div class="mt-3 text-gray-500 text-xs">
                 Token: {{ token }}
               </div>
-              <div class="mt-5">
+              <div class="mt-1 text-gray-500 text-xs">
+                Address: {{ user.address }}
+              </div>
+              <div class="mt-3">
                 <button v-if="!isFetched" class="bg-gray-400 hover:bg-gray-700 text-xs cursor-pointer rounded-sm p-1 text-white"  @click="fetchUserCharacters(token)">キャラクターを取得</button>
               </div>
             </template>

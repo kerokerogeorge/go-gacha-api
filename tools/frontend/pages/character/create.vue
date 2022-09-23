@@ -20,7 +20,7 @@
       <div class="flex flex-wrap">
         <div v-for="(c, index) in characters" :key="index" class="m-2 relative text-xs text-gray-500 border border-solid border-gray-500 rounded-lg">
           <img :src="c.imgUrl" alt="pokemon" class="w-28 h-28" />
-          <div class="absolute bottom-0 left-0 p-1 bg-gray-400 text-white bg-opacity-80">{{ c.name }}</div>
+          <div class="absolute bottom-2 px-3 py-1 w-full bg-gray-400 text-white bg-opacity-80">{{ c.name }}</div>
         </div>
       </div>
     </template>
