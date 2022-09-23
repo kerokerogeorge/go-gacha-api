@@ -5,7 +5,9 @@
         <button class="text-sm cursor-pointer rounded-md py-1 px-3 text-white" :class="{'bg-green-300': !user.name, 'bg-green-500 hover:bg-green-700': user.name }" :disabled="!user.name" @click="createUser">ユーザーを作成する</button>
       </div>
       <input class="p-1 rounded-sm text-gray-600 border border-solid border-gray-400" type="text" v-model="user.name">
-      <div class="text-xs text-gray-400 mt-2">NAME: {{ user.name }}</div>
+      <div class="text-xs text-gray-400 mt-2">Name: {{ user.name }}</div>
+      <input class="p-1 rounded-sm text-gray-600 border border-solid border-gray-400" type="text" v-model="user.address">
+      <div class="text-xs text-gray-400 mt-2">Account: {{ user.address }}</div>
     </div>
     <div class="border border-gray-400 border-solid mt-10 h-28">
       <div class="mx-4 my-3 text-gray-600 font-semibold text-lg">Response</div>
@@ -17,7 +19,8 @@
       </div>
       <div v-for="(u, index) in users" :key="index" class="m-3 flex">
         <div class="mr-3">ID: {{ u.id }}</div>
-        <div>Name: {{ u.name }}</div>
+        <div class="mr-2">Name: {{ u.name }}</div>
+        <div>Address: {{ u.address }}</div>
       </div>
     </template>
   </div>
@@ -30,7 +33,8 @@ export default {
   data () {
     return {
       user: {
-        name: ''
+        name: '',
+        address: '',
       },
       users: null,
       res: null
@@ -46,12 +50,14 @@ export default {
   methods: {
     async createUser () {
       try {
-        const { data } = await userRepository.createUser(this.user.name)
+        console.log(this.user.name)
+        const { data } = await userRepository.createUser(this.user.name, this.user.address)
         this.res = data
       } catch (e) {
         console.log(e)
       } finally {
         this.user.name = ''
+        this.user.address = ''
         await this.fetchUsers()
       }
     },

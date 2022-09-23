@@ -55,7 +55,8 @@ export default {
   data () {
     return {
       characters: [],
-      times: 0
+      times: 0,
+      loading: false
     }
   },
   computed: {
@@ -66,12 +67,16 @@ export default {
   },
   methods: {
     async drawGacha () {
+      // this.loading = true
       try {
         const { data } = await gachaRepository.draw(this.token, this.gachaId, Number(this.times))
         console.log(data)
         this.characters = data.results
       } catch (e) {
         console.log(e)
+      } finally {
+        // this.loading = false
+        this.times = 0
       }
     }
   }

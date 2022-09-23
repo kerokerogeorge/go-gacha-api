@@ -1,5 +1,6 @@
 <template>
   <div class="w-screen">
+    <UtilLoading v-if="loading" />
     <div class="flex items-center pl-56 h-28 fixed z-20 bg-white border-b border-solid border-gray-400 w-full">
       <div>
         <div class="text-2xl font-bold">API動作確認</div>
@@ -48,7 +49,8 @@ export default {
       balance: null,
       address: null,
       symbol: null,
-      etherBalance: null
+      etherBalance: null,
+      loading: false
     }
   },
   computed: {
@@ -57,6 +59,7 @@ export default {
     ]),
   },
   async mounted () {
+    await this.changeConnectionStatus({ isConnected: false })
     try {
       if (typeof window.ethereum !== 'undefined') {
         console.log('MetaMask is installed!')
@@ -86,18 +89,20 @@ export default {
         this.balance = await ethers.utils.formatUnits(result)
 
         await contract.on("Transfer", async (from, to, value, event) => {
+          this.loading = true
           let info = {
             from: from,
             to: to,
             value: ethers.utils.formatUnits(value),
             data: event,
           };
-          console.log(JSON.stringify(info, null, 4));
+          console.log(JSON.stringify(info, null, 4))
           console.log('=======================')
           console.log(info.value)
           console.log('=======================')
           const b = (await contract.balanceOf(this.address)).toString()
           this.balance = ethers.utils.formatUnits(b)
+          this.loading = false
         })
         await this.changeConnectionStatus({ isConnected: true })
       } catch (e) {

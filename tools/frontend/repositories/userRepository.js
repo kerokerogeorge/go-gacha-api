@@ -11,9 +11,10 @@ export default {
       }
     })
   },
-  createUser (name) {
+  createUser (name, address) {
     return repository.post('/user', {
-      name
+      name,
+      address
     })
   },
   getUserCharacters (token) {
