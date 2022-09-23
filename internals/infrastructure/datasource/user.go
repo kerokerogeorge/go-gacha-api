@@ -74,6 +74,7 @@ func (ur *userRepository) ToUserModel(user User) *model.User {
 		ID:        user.ID,
 		Name:      user.Name,
 		Token:     user.Token,
+		Address:   user.Address,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
 	}

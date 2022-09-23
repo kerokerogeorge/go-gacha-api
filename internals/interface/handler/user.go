@@ -43,7 +43,8 @@ type CreateUserResponse struct {
 }
 
 type GetUserResponse struct {
-	Name string `json:"name"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
 }
 
 type UpdateUserResponse struct {
@@ -122,7 +123,8 @@ func (uh *userHandler) GetOne(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &GetUserResponse{
-		Name: user.Name,
+		Name:    user.Name,
+		Address: user.Address,
 	})
 }
 
