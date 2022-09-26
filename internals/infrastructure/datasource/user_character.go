@@ -44,10 +44,9 @@ func (uch *userCharcacterRepository) CreateUserCharacter(userCharacter *model.Us
 	return nil
 }
 
-// TODO: ImgUrlとEmmitionRateをも取得するようにクエリを変更する
 func (uch *userCharcacterRepository) GetResults(userId string) ([]*model.Result, error) {
 	var results []*model.Result
-	err := uch.db.Table("users").Select("user_characters.id, user_characters.character_id, characters.name").
+	err := uch.db.Table("users").Select("user_characters.id, user_characters.character_id, characters.name, user_characters.img_url, user_characters.emission_rate").
 		Joins("INNER JOIN user_characters ON user_characters.user_id = ?", userId).
 		Joins("INNER JOIN characters ON user_characters.character_id = characters.id").
 		Where("users.id = ?", userId).
