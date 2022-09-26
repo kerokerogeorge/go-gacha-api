@@ -95,7 +95,7 @@ func (gu *gachaUsecase) Draw(charactersWithEmmitionRate []*model.CharacterWithEm
 	// 排出率の合計を100％に合わせて、キャラクターに定義されている排出率の数値に合わせて重みをつけ、配列に格納
 	s := []float64{}
 	for _, v := range charactersWithEmmitionRate {
-		s = append(s, math.Round((float64(v.EmissionRate) * float64(multipleAmt))))
+		s = append(s, (float64(v.EmissionRate) * float64(multipleAmt)))
 	}
 
 	// 重みづけをした数値をnum=0から足していき、numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれているか検証
@@ -103,12 +103,12 @@ func (gu *gachaUsecase) Draw(charactersWithEmmitionRate []*model.CharacterWithEm
 	var selectedCharacterId int
 	var emmitionRate float64
 	for i, v := range s {
-		if num < rand && rand <= num+v {
+		if num < rand && rand <= num+math.Round(v) {
 			selectedCharacterId, _ = strconv.Atoi(charactersWithEmmitionRate[i].CharacterID)
-			emmitionRate = v
+			emmitionRate = math.Round(v*100) / 100
 			break
 		} else {
-			num += v
+			num += math.Round(v)
 		}
 	}
 
