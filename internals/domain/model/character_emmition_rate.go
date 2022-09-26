@@ -24,12 +24,12 @@ type CharacterWithEmmitionRate struct {
 
 func NewCharacterEmmitionRate(gachaId string, characterId string) (*CharacterEmmitionRate, error) {
 	rand.Seed(time.Now().UnixNano())
-	emmitionRate := rand.Intn(100-1) + 1
+	emissionRate := rand.Intn(100-1) + 1
 	now := flextime.Now()
 	return &CharacterEmmitionRate{
 		GachaID:      gachaId,
 		CharacterID:  characterId,
-		EmissionRate: emmitionRate,
+		EmissionRate: emissionRate,
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}, nil

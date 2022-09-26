@@ -29,12 +29,12 @@ type CreateGachaRequest struct {
 	Times int `json:"times"`
 }
 
-type GachaResultResponse struct {
-	ID           string  `json:"characterId"`
-	Name         string  `json:"name"`
-	ImgUrl       string  `json:"imgUrl"`
-	EmmitionRate float64 `json:"emmitionRate"`
-}
+// type GachaResultResponse struct {
+// 	ID           string  `json:"characterId"`
+// 	Name         string  `json:"name"`
+// 	ImgUrl       string  `json:"imgUrl"`
+// 	EmissionRate float64 `json:"emissionRate"`
+// }
 
 type CreateGachaResponse struct {
 	GachaId string `json:"id"`
@@ -143,28 +143,10 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 		return
 	}
 
-	user, err := gh.userUsecase.Get(key)
+	results, err := gh.gachaUsecase.Draw(c.Param("gachaId"), req.Times, key)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "draw gacha failed"})
 		return
-	}
-
-	charactersWithEmmitionRate, err := gh.characterUsecase.GetCharactersWithEmmitionRate(c.Param("gachaId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Characters not found"})
-		return
-	}
-
-	var results []*GachaResultResponse
-	for i := 0; i < req.Times; i++ {
-		character, emmitionRate, err := gh.gachaUsecase.Draw(charactersWithEmmitionRate, user.ID)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "draw gacha failed"})
-			return
-		}
-		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
-		res := &GachaResultResponse{ID: character.ID, Name: character.Name, ImgUrl: character.ImgUrl, EmmitionRate: emmitionRate}
-		results = append(results, res)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"results": results})

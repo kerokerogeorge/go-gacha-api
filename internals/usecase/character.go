@@ -25,7 +25,11 @@ type characterUsecase struct {
 	userCharcacterRepo        repository.UserCharcacterRepository
 }
 
-func NewCharacterUsecase(cr repository.CharacterRepository, cerr repository.CharacterEmmitionRateRepository, rr repository.UserCharcacterRepository) CharacterUsecase {
+func NewCharacterUsecase(
+	cr repository.CharacterRepository,
+	cerr repository.CharacterEmmitionRateRepository,
+	rr repository.UserCharcacterRepository,
+) CharacterUsecase {
 	return &characterUsecase{
 		characterRepo:             cr,
 		characterEmmitionRateRepo: cerr,

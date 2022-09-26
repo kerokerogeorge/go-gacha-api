@@ -40,7 +40,7 @@
               <div class="ml-3 w-10">{{ index + 1 }}</div>
               <div class="w-10">{{ c.characterId }}</div>
               <div class="w-48">{{ c.name }}</div>
-              <div class="w-40">{{ c.emmitionRate }}%</div>
+              <div class="w-40">{{ c.emissionRate }}%</div>
               <div class="relative border border-solid border-gray-400">
                 <img :src="c.imgUrl" alt="pokemon" class="w-20 h-20" />
                 <div class="absolute text-xs bottom-2 px-2 w-full bg-gray-400 text-white bg-opacity-80">{{ c.name }}</div>

@@ -62,14 +62,6 @@ func (ur *characterRepository) ToCharacterModel(character Character) *model.Char
 	}
 }
 
-func (cr *characterRepository) CreateUserCharacter(result *model.UserCharacter) error {
-	err := cr.db.Table("user_characters").Create(&result).Error
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (cr *characterRepository) DeleteCharacter(character *model.Character) error {
 	err := cr.db.Delete(&character).Error
 	if err != nil {
