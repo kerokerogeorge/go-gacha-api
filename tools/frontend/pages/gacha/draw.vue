@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen py-28">
-    <div class="fixed w-full h-auto px-5 border-b border-solid border-gray-400 bg-white py-10">
+    <div class="z-20 fixed w-full h-auto px-5 border-b border-solid border-gray-400 bg-white py-10">
       <div class="flex items-center">
         <div class="mr-3">
           <div>
