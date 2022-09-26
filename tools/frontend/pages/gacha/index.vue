@@ -22,7 +22,7 @@
                 <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-green-400 hover:bg-green-600" @click="fetchGacha(g.gachaId)">キャラを表示</button>
               </div>
               <div class="mx-3">
-                <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-yellow-400 hover:bg-yellow-600" @click="selectGacha">ガチャを選択</button>
+                <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-yellow-400 hover:bg-yellow-600" @click="selectGacha(g.gachaId)">ガチャを選択</button>
               </div>
               <div>
                 <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-red-400 hover:bg-red-600" @click="deleteGacha(g.gachaId)">削除</button>
@@ -159,7 +159,7 @@ export default {
       this.totalFixedRate = 0
       this.multiple = 0
     },
-    async selectGacha () {
+    async selectGacha (gachaId) {
       try {
         await this.selectGachaId({ gachaId: gachaId })
       } catch (e) { console.log(e) }

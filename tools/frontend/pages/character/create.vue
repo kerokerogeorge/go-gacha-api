@@ -79,10 +79,19 @@ export default {
       try {
         const pokeId = Math.floor(Math.random() * this.pokemonCount)
         const { data } = await pokemonRepository.getPokemon(pokeId)
+        const japaneseName = await this.fetchJapaneseName(data.id)
         Object.assign(this.pokemon, {
-          name: data.name,
+          name: japaneseName.name,
           imgUrl: data.sprites.front_default,
         })
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async fetchJapaneseName (pokemonId) {
+      try {
+        const { data } = await pokemonRepository.getCharacterName(pokemonId)
+        return data.names.find(name => name.language.name === 'ja')
       } catch (e) {
         console.log(e)
       }
