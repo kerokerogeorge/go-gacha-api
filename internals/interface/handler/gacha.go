@@ -117,7 +117,7 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 // @Param x-token header string true "x-token"
 // @Param gachaId path string true "gachaId"
 // @Param times body string true "ガチャを実行する回数"
-// @Success 200 {object} []GachaResultResponse
+// @Success 200 {object} []model.Result
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Draw(c *gin.Context) {
 	var req CreateGachaRequest
