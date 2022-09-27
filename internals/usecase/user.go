@@ -12,7 +12,7 @@ type UserUsecase interface {
 	Create(name string, address string) (string, error)
 	Get(token string) (*model.User, error)
 	List() ([]*model.User, error)
-	Update(user *model.User, name string) (*model.User, error)
+	Update(token string, name string) (*model.User, error)
 	Delete(token string) error
 	GetUserCharacters(token string) ([]*model.Result, error)
 }
@@ -42,7 +42,11 @@ func (uu *userUsecase) Get(token string) (*model.User, error) {
 	return uu.userRepo.GetUser(token)
 }
 
-func (uu *userUsecase) Update(user *model.User, name string) (*model.User, error) {
+func (uu *userUsecase) Update(token string, name string) (*model.User, error) {
+	user, err := uu.userRepo.GetUser(token)
+	if err != nil {
+		return nil, errors.New("authentication failed")
+	}
 	return uu.userRepo.UpdateUser(user, name)
 }
 

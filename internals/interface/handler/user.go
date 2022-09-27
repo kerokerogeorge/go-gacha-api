@@ -148,13 +148,7 @@ func (uh *userHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := uh.userUsecase.Get(key)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
-		return
-	}
-
-	updatedUser, err := uh.userUsecase.Update(user, input.Name)
+	updatedUser, err := uh.userUsecase.Update(key, input.Name)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "update failed"})
 		return
