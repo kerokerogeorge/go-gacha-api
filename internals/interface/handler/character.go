@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -62,7 +61,6 @@ func (ch *characterHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	log.Println(req)
 	newCharacter, err := model.NewCharacter(req.Name, req.ImgUrl)
 	if err != nil {
 		panic(err)
@@ -102,37 +100,7 @@ func (ch *characterHandler) GetWithEmmitionRate(c *gin.Context) {
 // @Success 204
 // @Failure 400 {object} helper.Error
 func (ch *characterHandler) Delete(c *gin.Context) {
-	gachaCharacters, err := ch.characterUsecase.GetGachaCharacters(c.Param("characterId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "gacha characters record not found"})
-		return
-	}
-
-	err = ch.characterUsecase.DeleteGachaCharacters(gachaCharacters)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "delete gacha characters failed"})
-		return
-	}
-
-	userCharacters, err := ch.characterUsecase.GetUserCharacters(c.Param("characterId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "user characters record not found"})
-		return
-	}
-
-	err = ch.characterUsecase.DeleteUserCharacters(userCharacters)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "delete user characters failed"})
-		return
-	}
-
-	character, err := ch.characterUsecase.Get(c.Param("characterId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "gacha record not Found"})
-		return
-	}
-
-	err = ch.characterUsecase.Delete(character)
+	err := ch.characterUsecase.Delete(c.Param("characterId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "delete character failed"})
 		return

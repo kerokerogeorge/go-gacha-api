@@ -1,6 +1,7 @@
 package usecase
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
@@ -11,7 +12,7 @@ type CharacterUsecase interface {
 	List() ([]*model.Character, error)
 	Get(characterId string) (*model.Character, error)
 	Create(character *model.Character) (*model.Character, error)
-	Delete(character *model.Character) error
+	Delete(characterId string) error
 	GetCharactersWithEmmitionRate(gachaId string) ([]*model.CharacterWithEmmitionRate, error)
 	GetGachaCharacters(characterId string) ([]*model.CharacterEmmitionRate, error)
 	DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error
@@ -50,7 +51,32 @@ func (cu *characterUsecase) Create(character *model.Character) (*model.Character
 	return cu.characterRepo.CreateCharacter(character)
 }
 
-func (cu *characterUsecase) Delete(character *model.Character) error {
+func (cu *characterUsecase) Delete(characterId string) error {
+	gachaCharacters, err := cu.characterEmmitionRateRepo.GetGachaCharactersFromCharacterId(characterId)
+	if err != nil {
+		return errors.New("gacha characters record not found")
+	}
+
+	err = cu.DeleteGachaCharacters(gachaCharacters)
+	if err != nil {
+		return errors.New("delete gacha characters failed")
+	}
+
+	userCharacters, err := cu.userCharcacterRepo.GetUserCharacters(characterId, "CHARACTER")
+	if err != nil {
+		return errors.New("user characters record not found")
+	}
+
+	err = cu.DeleteUserCharacters(userCharacters)
+	if err != nil {
+		return errors.New("delete user characters failed")
+	}
+
+	id, _ := strconv.Atoi(characterId)
+	character, err := cu.characterRepo.GetCharacter(id)
+	if err != nil {
+		return errors.New("gacha record not Found")
+	}
 	return cu.characterRepo.DeleteCharacter(character)
 }
 
