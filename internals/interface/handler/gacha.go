@@ -98,7 +98,7 @@ func (gh *gachaHandler) Create(c *gin.Context) {
 // @Description 新しいガチャと登録されているキャラクターの排出率を取得する
 // @Accept application/json
 // @Param gachaId path string true "gachaId"
-// @Success 200 {object} GetGachaResponse
+// @Success 200 {object} model.Gacha
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Get(c *gin.Context) {
 	gacha, err := gh.gachaUsecase.Get(c.Param("gachaId"))
@@ -107,18 +107,7 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 		return
 	}
 
-	charactersWithEmmitionRate, err := gh.characterUsecase.GetCharactersWithEmmitionRate(gacha.ID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "characters not found"})
-		return
-	}
-
-	getGachaResponse := &GetGachaResponse{
-		GachaId:    gacha.ID,
-		Characters: charactersWithEmmitionRate,
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": getGachaResponse})
+	c.JSON(http.StatusOK, gin.H{"data": gacha})
 }
 
 // @Summary ガチャを実行するAPI

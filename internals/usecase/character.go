@@ -11,7 +11,7 @@ import (
 type CharacterUsecase interface {
 	List() ([]*model.Character, error)
 	Get(characterId string) (*model.Character, error)
-	Create(character *model.Character) (*model.Character, error)
+	Create(name string, imgUrl string) (*model.Character, error)
 	Delete(characterId string) error
 	GetCharactersWithEmmitionRate(gachaId string) ([]*model.CharacterWithEmmitionRate, error)
 	GetGachaCharacters(characterId string) ([]*model.CharacterEmmitionRate, error)
@@ -47,8 +47,12 @@ func (cu *characterUsecase) Get(characterId string) (*model.Character, error) {
 	return cu.characterRepo.GetCharacter(id)
 }
 
-func (cu *characterUsecase) Create(character *model.Character) (*model.Character, error) {
-	return cu.characterRepo.CreateCharacter(character)
+func (cu *characterUsecase) Create(name string, imgUrl string) (*model.Character, error) {
+	newCharacter, err := model.NewCharacter(name, imgUrl)
+	if err != nil {
+		return nil, err
+	}
+	return cu.characterRepo.CreateCharacter(newCharacter)
 }
 
 func (cu *characterUsecase) Delete(characterId string) error {

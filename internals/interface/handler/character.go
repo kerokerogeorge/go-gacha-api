@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 )
 
@@ -61,12 +60,8 @@ func (ch *characterHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	newCharacter, err := model.NewCharacter(req.Name, req.ImgUrl)
-	if err != nil {
-		panic(err)
-	}
 
-	character, err := ch.characterUsecase.Create(newCharacter)
+	character, err := ch.characterUsecase.Create(req.Name, req.ImgUrl)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

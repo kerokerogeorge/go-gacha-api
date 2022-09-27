@@ -8,9 +8,10 @@ import (
 )
 
 type Gacha struct {
-	ID        string    `json:"id"`
-	CreatedAt time.Time `json:"createdAt"`
-	UpdatedAt time.Time `json:"updatedAt"`
+	ID         string                       `json:"id"`
+	Characters []*CharacterWithEmmitionRate `json:"characters"`
+	CreatedAt  time.Time                    `json:"createdAt"`
+	UpdatedAt  time.Time                    `json:"updatedAt"`
 }
 
 func NewGacha() (*Gacha, error) {

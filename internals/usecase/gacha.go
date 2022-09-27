@@ -86,7 +86,20 @@ func (gu *gachaUsecase) List() ([]*model.Gacha, error) {
 }
 
 func (gu *gachaUsecase) Get(gachaId string) (*model.Gacha, error) {
-	return gu.gachaRepo.GetOne(gachaId)
+	gacha, err := gu.gachaRepo.GetOne(gachaId)
+	if err != nil {
+		return nil, errors.New("record not found")
+	}
+
+	charactersWithEmmitionRate, err := gu.characterEmmitionRateRepo.GetCharacterWithEmmitionRate(gacha.ID)
+	if err != nil {
+		return nil, errors.New("characters not found")
+	}
+
+	gachaWithCharacters := &model.Gacha{
+		Characters: charactersWithEmmitionRate,
+	}
+	return gachaWithCharacters, err
 }
 
 func (gu *gachaUsecase) Draw(gachaId string, times int, key string) ([]*model.Result, error) {
