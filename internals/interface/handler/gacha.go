@@ -149,25 +149,7 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 // @Success 204
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Delete(c *gin.Context) {
-	gachaCharacters, err := gh.gachaUsecase.GetGachaCharacters(c.Param("gachaId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
-		return
-	}
-
-	err = gh.gachaUsecase.DeleteGachaCharacters(gachaCharacters)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "delete gacha characters failed"})
-		return
-	}
-
-	gacha, err := gh.gachaUsecase.Get(c.Param("gachaId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "gacha record not Found"})
-		return
-	}
-
-	err = gh.gachaUsecase.Delete(gacha)
+	err := gh.gachaUsecase.Delete(c.Param("gachaId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "delete failed"})
 		return

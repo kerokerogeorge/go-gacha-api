@@ -16,7 +16,7 @@ type GachaUsecase interface {
 	List() ([]*model.Gacha, error)
 	Get(gachaId string) (*model.Gacha, error)
 	Draw(gachaId string, times int, key string) ([]*model.Result, error)
-	Delete(gacha *model.Gacha) error
+	Delete(gachaId string) error
 	GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error)
 	DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error
 }
@@ -173,7 +173,22 @@ func (gu *gachaUsecase) Draw(gachaId string, times int, key string) ([]*model.Re
 	return results, nil
 }
 
-func (gu *gachaUsecase) Delete(gacha *model.Gacha) error {
+func (gu *gachaUsecase) Delete(gachaId string) error {
+	gachaCharacters, err := gu.characterEmmitionRateRepo.GetGachaCharacters(gachaId)
+	if err != nil {
+		return errors.New("record not found")
+	}
+
+	err = gu.DeleteGachaCharacters(gachaCharacters)
+	if err != nil {
+		return errors.New("delete gacha characters failed")
+	}
+
+	gacha, err := gu.gachaRepo.GetOne(gachaId)
+	if err != nil {
+		return errors.New("record not found")
+	}
+
 	return gu.gachaRepo.DeleteGacha(gacha)
 }
 
