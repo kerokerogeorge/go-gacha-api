@@ -14,7 +14,7 @@ type UserUsecase interface {
 	List() ([]*model.User, error)
 	Update(user *model.User, name string) (*model.User, error)
 	Delete(token string) error
-	GetUserCharacters(userId string) ([]*model.Result, error)
+	GetUserCharacters(token string) ([]*model.Result, error)
 }
 
 type userUsecase struct {
@@ -58,6 +58,10 @@ func (uu *userUsecase) Delete(token string) error {
 	return uu.userRepo.DeleteUser(user)
 }
 
-func (uu *userUsecase) GetUserCharacters(userId string) ([]*model.Result, error) {
-	return uu.userCharcacterRepo.GetResults(userId)
+func (uu *userUsecase) GetUserCharacters(token string) ([]*model.Result, error) {
+	user, err := uu.userRepo.GetUser(token)
+	if err != nil {
+		return nil, errors.New("authentication failed")
+	}
+	return uu.userCharcacterRepo.GetResults(user.ID)
 }

@@ -202,13 +202,7 @@ func (uh *userHandler) GetUserCharacters(c *gin.Context) {
 		return
 	}
 
-	user, err := uh.userUsecase.Get(key)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
-		return
-	}
-
-	results, err := uh.userUsecase.GetUserCharacters(user.ID)
+	results, err := uh.userUsecase.GetUserCharacters(key)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
 		return
