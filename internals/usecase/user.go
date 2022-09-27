@@ -1,6 +1,8 @@
 package usecase
 
 import (
+	"errors"
+
 	"github.com/google/uuid"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/repository"
@@ -11,7 +13,7 @@ type UserUsecase interface {
 	Get(token string) (*model.User, error)
 	List() ([]*model.User, error)
 	Update(user *model.User, name string) (*model.User, error)
-	Delete(user *model.User) error
+	Delete(token string) error
 	GetUserCharacters(userId string) ([]*model.Result, error)
 }
 
@@ -48,7 +50,11 @@ func (uu *userUsecase) List() ([]*model.User, error) {
 	return uu.userRepo.GetUsers()
 }
 
-func (uu *userUsecase) Delete(user *model.User) error {
+func (uu *userUsecase) Delete(token string) error {
+	user, err := uu.userRepo.GetUser(token)
+	if err != nil {
+		return errors.New("authentication failed")
+	}
 	return uu.userRepo.DeleteUser(user)
 }
 

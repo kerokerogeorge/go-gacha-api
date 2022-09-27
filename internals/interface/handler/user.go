@@ -88,8 +88,6 @@ func (uh *userHandler) Create(c *gin.Context) {
 		return
 	}
 
-	log.Println(input)
-
 	token, err := uh.userUsecase.Create(input.Name, input.Address)
 	if err != nil {
 		log.Println(err, gin.H{"error": err})
@@ -181,13 +179,7 @@ func (uh *userHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	user, err := uh.userUsecase.Get(key)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
-		return
-	}
-
-	err = uh.userUsecase.Delete(user)
+	err := uh.userUsecase.Delete(key)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
