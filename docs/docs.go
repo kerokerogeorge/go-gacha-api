@@ -32,6 +32,15 @@ const docTemplate = `{
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "description": "imgUrl",
+                        "name": "imgUrl",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -201,7 +210,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/handler.GachaResultResponse"
+                                "$ref": "#/definitions/model.Result"
                             }
                         }
                     },
@@ -260,7 +269,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/handler.GetGachaResponse"
+                            "$ref": "#/definitions/model.Gacha"
                         }
                     },
                     "400": {
@@ -379,6 +388,15 @@ const docTemplate = `{
                     {
                         "description": "name",
                         "name": "name",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "description": "address",
+                        "name": "address",
                         "in": "body",
                         "required": true,
                         "schema": {
@@ -513,34 +531,12 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.GachaResultResponse": {
-            "type": "object",
-            "properties": {
-                "characterId": {
-                    "type": "string"
-                },
-                "name": {
-                    "type": "string"
-                }
-            }
-        },
-        "handler.GetGachaResponse": {
-            "type": "object",
-            "properties": {
-                "characters": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/model.CharacterWithEmmitionRate"
-                    }
-                },
-                "gachaId": {
-                    "type": "string"
-                }
-            }
-        },
         "handler.GetUserResponse": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 }
@@ -585,6 +581,9 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "imgUrl": {
+                    "type": "string"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -607,10 +606,36 @@ const docTemplate = `{
                 }
             }
         },
+        "model.Gacha": {
+            "type": "object",
+            "properties": {
+                "characters": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/model.CharacterWithEmmitionRate"
+                    }
+                },
+                "createdAt": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "updatedAt": {
+                    "type": "string"
+                }
+            }
+        },
         "model.Result": {
             "type": "object",
             "properties": {
                 "characterId": {
+                    "type": "string"
+                },
+                "emissionRate": {
+                    "type": "number"
+                },
+                "imgUrl": {
                     "type": "string"
                 },
                 "name": {
@@ -624,8 +649,10 @@ const docTemplate = `{
         "model.User": {
             "type": "object",
             "properties": {
+                "address": {
+                    "type": "string"
+                },
                 "createdAt": {
-                    "description": "Characters []*Character ` + "`" + `json:\"characters\"` + "`" + `",
                     "type": "string"
                 },
                 "id": {
