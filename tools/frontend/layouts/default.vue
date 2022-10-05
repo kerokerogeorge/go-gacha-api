@@ -106,10 +106,6 @@ export default {
             value: ethers.utils.formatUnits(value),
             data: event,
           };
-          console.log(JSON.stringify(info, null, 4))
-          console.log('=======================')
-          console.log(info.value)
-          console.log('=======================')
           const b = (await contract.balanceOf(this.address)).toString()
           this.balance = ethers.utils.formatUnits(b)
           this.loading = false
