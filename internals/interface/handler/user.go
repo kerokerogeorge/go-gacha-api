@@ -30,7 +30,8 @@ func NewUserHandler(uu usecase.UserUsecase) *userHandler {
 }
 
 type CreateUserRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name    string `json:"name" binding:"required"`
+	Address string `json:"address" binding:"required"`
 }
 
 type UpdateUserRequest struct {
@@ -42,7 +43,8 @@ type CreateUserResponse struct {
 }
 
 type GetUserResponse struct {
-	Name string `json:"name"`
+	Name    string `json:"name"`
+	Address string `json:"address"`
 }
 
 type UpdateUserResponse struct {
@@ -76,6 +78,7 @@ func (uh *userHandler) GetUsers(c *gin.Context) {
 // @Description 新しいユーザーを作成します
 // @Accept application/json
 // @Param name body string true "name"
+// @Param address body string true "address"
 // @Success 201 {object} CreateUserResponse
 // @Failure 400 {object} helper.Error
 func (uh *userHandler) Create(c *gin.Context) {
@@ -85,7 +88,7 @@ func (uh *userHandler) Create(c *gin.Context) {
 		return
 	}
 
-	token, err := uh.userUsecase.Create(input.Name)
+	token, err := uh.userUsecase.Create(input.Name, input.Address)
 	if err != nil {
 		log.Println(err, gin.H{"error": err})
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
@@ -118,7 +121,8 @@ func (uh *userHandler) GetOne(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &GetUserResponse{
-		Name: user.Name,
+		Name:    user.Name,
+		Address: user.Address,
 	})
 }
 
@@ -144,13 +148,7 @@ func (uh *userHandler) UpdateUser(c *gin.Context) {
 		return
 	}
 
-	user, err := uh.userUsecase.Get(key)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
-		return
-	}
-
-	updatedUser, err := uh.userUsecase.Update(user, input.Name)
+	updatedUser, err := uh.userUsecase.Update(key, input.Name)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "update failed"})
 		return
@@ -175,13 +173,7 @@ func (uh *userHandler) DeleteUser(c *gin.Context) {
 		return
 	}
 
-	user, err := uh.userUsecase.Get(key)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
-		return
-	}
-
-	err = uh.userUsecase.Delete(user)
+	err := uh.userUsecase.Delete(key)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
@@ -204,13 +196,7 @@ func (uh *userHandler) GetUserCharacters(c *gin.Context) {
 		return
 	}
 
-	user, err := uh.userUsecase.Get(key)
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "authentication failed"})
-		return
-	}
-
-	results, err := uh.userUsecase.GetUserCharacters(user.ID)
+	results, err := uh.userUsecase.GetUserCharacters(key)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
 		return

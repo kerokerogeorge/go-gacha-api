@@ -8,7 +8,7 @@ import (
 )
 
 type CharacterEmmitionRate struct {
-	ID           string    `json:"id"`
+	ID           string    `json:"id" gorm:"primary_key"`
 	GachaID      string    `json:"gachaId"`
 	CharacterID  string    `json:"characterId"`
 	EmissionRate int       `json:"emissionRate"`
@@ -19,7 +19,7 @@ type CharacterEmmitionRate struct {
 type CharacterWithEmmitionRate struct {
 	CharacterID  string `json:"characterId"`
 	Name         string `json:"name"`
-	EmissionRate string `json:"emissionRate"`
+	EmissionRate int    `json:"emissionRate"`
 }
 
 type characterEmmitionRateRepository struct {

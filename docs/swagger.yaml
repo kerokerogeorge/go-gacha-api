@@ -14,24 +14,10 @@ definitions:
       gachaId:
         type: string
     type: object
-  handler.GachaResultResponse:
-    properties:
-      characterId:
-        type: string
-      name:
-        type: string
-    type: object
-  handler.GetGachaResponse:
-    properties:
-      characters:
-        items:
-          $ref: '#/definitions/model.CharacterWithEmmitionRate'
-        type: array
-      gachaId:
-        type: string
-    type: object
   handler.GetUserResponse:
     properties:
+      address:
+        type: string
       name:
         type: string
     type: object
@@ -60,6 +46,8 @@ definitions:
         type: string
       id:
         type: string
+      imgUrl:
+        type: string
       name:
         type: string
       updatedAt:
@@ -74,9 +62,26 @@ definitions:
       name:
         type: string
     type: object
+  model.Gacha:
+    properties:
+      characters:
+        items:
+          $ref: '#/definitions/model.CharacterWithEmmitionRate'
+        type: array
+      createdAt:
+        type: string
+      id:
+        type: string
+      updatedAt:
+        type: string
+    type: object
   model.Result:
     properties:
       characterId:
+        type: string
+      emissionRate:
+        type: number
+      imgUrl:
         type: string
       name:
         type: string
@@ -85,8 +90,9 @@ definitions:
     type: object
   model.User:
     properties:
+      address:
+        type: string
       createdAt:
-        description: Characters []*Character `json:"characters"`
         type: string
       id:
         type: string
@@ -112,6 +118,12 @@ paths:
       - description: name
         in: body
         name: name
+        required: true
+        schema:
+          type: string
+      - description: imgUrl
+        in: body
+        name: imgUrl
         required: true
         schema:
           type: string
@@ -232,7 +244,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/handler.GetGachaResponse'
+            $ref: '#/definitions/model.Gacha'
         "400":
           description: Bad Request
           schema:
@@ -265,7 +277,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/handler.GachaResultResponse'
+              $ref: '#/definitions/model.Result'
             type: array
         "400":
           description: Bad Request
@@ -336,6 +348,12 @@ paths:
       - description: name
         in: body
         name: name
+        required: true
+        schema:
+          type: string
+      - description: address
+        in: body
+        name: address
         required: true
         schema:
           type: string

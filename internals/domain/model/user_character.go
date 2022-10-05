@@ -8,25 +8,31 @@ import (
 )
 
 type UserCharacter struct {
-	ID          string    `json:"id" gorm:"primary_key"`
-	UserId      string    `json:"userId"`
-	CharacterId string    `json:"characterId"`
-	CreatedAt   time.Time `json:"createdAt"`
-	UpdatedAt   time.Time `json:"updatedAt"`
+	ID           string    `json:"id" gorm:"primary_key"`
+	UserId       string    `json:"userId"`
+	CharacterId  string    `json:"characterId"`
+	ImgUrl       string    `json:"imgUrl"`
+	EmissionRate float64   `json:"emissionRate"`
+	CreatedAt    time.Time `json:"createdAt"`
+	UpdatedAt    time.Time `json:"updatedAt"`
 }
 
 type Result struct {
-	ID          string `json:"userCharacterId"`
-	CharacterId string `json:"characterId"`
-	Name        string `json:"name"`
+	ID           string  `json:"userCharacterId"`
+	CharacterId  string  `json:"characterId"`
+	Name         string  `json:"name"`
+	ImgUrl       string  `json:"imgUrl"`
+	EmissionRate float64 `json:"emissionRate"`
 }
 
-func NewUserCharacter(userId string, characterId string) (*UserCharacter, error) {
+func NewUserCharacter(userId string, characterId string, imgUrl string, emissionRate float64) (*UserCharacter, error) {
 	now := flextime.Now()
 	return &UserCharacter{
-		UserId:      userId,
-		CharacterId: characterId,
-		CreatedAt:   now,
-		UpdatedAt:   now,
+		UserId:       userId,
+		CharacterId:  characterId,
+		ImgUrl:       imgUrl,
+		EmissionRate: emissionRate,
+		CreatedAt:    now,
+		UpdatedAt:    now,
 	}, nil
 }

@@ -6,6 +6,5 @@ type CharacterRepository interface {
 	GetCharacters() ([]*model.Character, error)
 	CreateCharacter(character *model.Character) (*model.Character, error)
 	GetCharacter(characterId int) (*model.Character, error)
-	CreateUserCharacter(*model.UserCharacter) error
 	DeleteCharacter(character *model.Character) error
 }

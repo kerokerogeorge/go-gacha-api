@@ -6,9 +6,10 @@ export default {
   getCharacters () {
     return repository.get(`${resource}/list`)
   },
-  create (name) {
+  create (name, imgUrl) {
     return repository.post(`${resource}`, {
-      name
+      name,
+      imgUrl
     })
   },
   getCharactersWithEmmitionRates (gachaId) {

@@ -29,10 +29,12 @@ type CreateGachaRequest struct {
 	Times int `json:"times"`
 }
 
-type GachaResultResponse struct {
-	ID   string `json:"characterId"`
-	Name string `json:"name"`
-}
+// type GachaResultResponse struct {
+// 	ID           string  `json:"characterId"`
+// 	Name         string  `json:"name"`
+// 	ImgUrl       string  `json:"imgUrl"`
+// 	EmissionRate float64 `json:"emissionRate"`
+// }
 
 type CreateGachaResponse struct {
 	GachaId string `json:"id"`
@@ -96,7 +98,7 @@ func (gh *gachaHandler) Create(c *gin.Context) {
 // @Description 新しいガチャと登録されているキャラクターの排出率を取得する
 // @Accept application/json
 // @Param gachaId path string true "gachaId"
-// @Success 200 {object} GetGachaResponse
+// @Success 200 {object} model.Gacha
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Get(c *gin.Context) {
 	gacha, err := gh.gachaUsecase.Get(c.Param("gachaId"))
@@ -105,18 +107,7 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 		return
 	}
 
-	charactersWithEmmitionRate, err := gh.characterUsecase.GetCharactersWithEmmitionRate(gacha.ID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "characters not found"})
-		return
-	}
-
-	getGachaResponse := &GetGachaResponse{
-		GachaId:    gacha.ID,
-		Characters: charactersWithEmmitionRate,
-	}
-
-	c.JSON(http.StatusOK, gin.H{"data": getGachaResponse})
+	c.JSON(http.StatusOK, gin.H{"data": gacha})
 }
 
 // @Summary ガチャを実行するAPI
@@ -126,7 +117,7 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 // @Param x-token header string true "x-token"
 // @Param gachaId path string true "gachaId"
 // @Param times body string true "ガチャを実行する回数"
-// @Success 200 {object} []GachaResultResponse
+// @Success 200 {object} []model.Result
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Draw(c *gin.Context) {
 	var req CreateGachaRequest
@@ -141,28 +132,10 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 		return
 	}
 
-	user, err := gh.userUsecase.Get(key)
+	results, err := gh.gachaUsecase.Draw(c.Param("gachaId"), req.Times, key)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Authentication failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "draw gacha failed"})
 		return
-	}
-
-	charactersWithEmmitionRate, err := gh.characterUsecase.GetCharactersWithEmmitionRate(c.Param("gachaId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Characters not found"})
-		return
-	}
-
-	var results []*GachaResultResponse
-	for i := 0; i < req.Times; i++ {
-		character, err := gh.gachaUsecase.Draw(charactersWithEmmitionRate, user.ID)
-		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "draw gacha failed"})
-			return
-		}
-		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
-		res := &GachaResultResponse{ID: character.ID, Name: character.Name}
-		results = append(results, res)
 	}
 
 	c.JSON(http.StatusOK, gin.H{"results": results})
@@ -176,25 +149,7 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 // @Success 204
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Delete(c *gin.Context) {
-	gachaCharacters, err := gh.gachaUsecase.GetGachaCharacters(c.Param("gachaId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "record not found"})
-		return
-	}
-
-	err = gh.gachaUsecase.DeleteGachaCharacters(gachaCharacters)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "delete gacha characters failed"})
-		return
-	}
-
-	gacha, err := gh.gachaUsecase.Get(c.Param("gachaId"))
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "gacha record not Found"})
-		return
-	}
-
-	err = gh.gachaUsecase.Delete(gacha)
+	err := gh.gachaUsecase.Delete(c.Param("gachaId"))
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "delete failed"})
 		return

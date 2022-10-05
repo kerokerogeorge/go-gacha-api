@@ -15,18 +15,23 @@
       <div class="pt-52 px-5 w-full flex h-full">
         <div class="w-5/12 pt-3 pb-10 border-r border-solid border-gray-400">
           <p class="font-semibold text-gray-700">ガチャ一覧</p>
-          <div v-for="(g, index) in gachas" :key="index" class="mt-2 text-xs flex">
+          <div v-for="(g, index) in gachas" :key="index" class="mt-2 text-xs">
             <div class="mr-3">ID: {{ g.gachaId }}</div>
-            <div class="text-gray-700 hover:text-gray-400 mr-2">
-              <button @click="fetchGacha(g.gachaId)">キャラを表示</button>
-            </div>
-            <div class="text-gray-700 hover:text-gray-400">
-              <button @click="deleteGacha(g.gachaId)">削除</button>
+            <div class="flex">
+              <div>
+                <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-green-400 hover:bg-green-600" @click="fetchGacha(g.gachaId)">キャラを表示</button>
+              </div>
+              <div class="mx-3">
+                <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-yellow-400 hover:bg-yellow-600" @click="selectGacha(g.gachaId)">ガチャを選択</button>
+              </div>
+              <div>
+                <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-red-400 hover:bg-red-600" @click="deleteGacha(g.gachaId)">削除</button>
+              </div>
             </div>
           </div>
         </div>
         <div class="w-7/12">
-          <div class="z-20 fixed top-80 flex bg-white items-center h-10 px-5 w-full border-b border-gray-400 border-solid">
+          <div class="z-20 fixed top-80 flex bg-white items-center h-12 px-5 w-full border-b border-gray-400 border-solid">
             <div>
               <p class="text-gray-700 text-xs">ガチャID: {{ gachaId ? gachaId : '-' }}</p>
             </div>
@@ -153,6 +158,11 @@ export default {
       this.total = 0
       this.totalFixedRate = 0
       this.multiple = 0
+    },
+    async selectGacha (gachaId) {
+      try {
+        await this.selectGachaId({ gachaId: gachaId })
+      } catch (e) { console.log(e) }
     }
   }
 }

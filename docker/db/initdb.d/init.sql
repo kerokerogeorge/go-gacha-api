@@ -6,6 +6,7 @@ CREATE TABLE IF NOT EXISTS users
     id            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
     name          varchar(36) DEFAULT NULL COMMENT 'ユーザー名',
     token         varchar(255) DEFAULT NULL COMMENT '認証トークン',
+    address        varchar(255) DEFAULT NULL COMMENT 'アドレス',
     created_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
     updated_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
     PRIMARY KEY (id)
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS characters
 (
     id             bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
     name           varchar(36) DEFAULT NULL COMMENT 'キャラクター名',
+    img_url        varchar(255) DEFAULT NULL COMMENT '画像URL',
     created_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
     updated_at     timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
     PRIMARY KEY (id)
@@ -25,6 +27,8 @@ CREATE TABLE IF NOT EXISTS user_characters
     id            bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'id',
     user_id       bigint(20) NOT NULL COMMENT 'ユーザーID',
     character_id  bigint(20) NOT NULL COMMENT 'キャラクターID',
+    img_url       varchar(255) DEFAULT NULL COMMENT '画像URL',
+    emission_rate bigint(20) DEFAULT NULL COMMENT '排出確率',
     created_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '作成日時',
     updated_at    timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '更新日時',
     PRIMARY KEY(id),

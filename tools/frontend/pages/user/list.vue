@@ -25,7 +25,10 @@
               <div class="mt-3 text-gray-500 text-xs">
                 Token: {{ token }}
               </div>
-              <div class="mt-5">
+              <div class="mt-1 text-gray-500 text-xs">
+                Address: {{ user.address }}
+              </div>
+              <div class="mt-3">
                 <button v-if="!isFetched" class="bg-gray-400 hover:bg-gray-700 text-xs cursor-pointer rounded-sm p-1 text-white"  @click="fetchUserCharacters(token)">キャラクターを取得</button>
               </div>
             </template>
@@ -38,15 +41,22 @@
               <div class="px-5 pt-36 pb-10">
                 <div class="border border-solid border-gray-500 text-gray-700 text-sm">
                   <div class="flex py-2 border-b border-solid border-gray-500">
-                    <div class="ml-3 w-10">ID</div>
-                    <div class="w-48">Name</div>
-                    <div class="w-48">userCharacterId</div>
+                    <div class="pl-3 w-10">ID</div>
+                    <div class="w-40">Name</div>
+                    <div class="w-20">char id</div>
+                    <div class="w-40">emmission rate</div>
+                    <!-- <div class="w-40">img</div> -->
                   </div>
                   <div v-for="(c, index) in characters" :key="index" class="">
                     <div class="flex py-2">
                       <div class="ml-3 w-10">{{ c.characterId }}</div>
-                      <div class="w-48">{{ c.name }}</div>
-                      <div class="w-48">{{ c.userCharacterId }}</div>
+                      <div class="w-40">{{ c.name }}</div>
+                      <div class="w-20">{{ c.userCharacterId }}</div>
+                      <div class="w-20">{{ c.emissionRate }}</div>
+                      <!-- <div class="relative border border-solid border-gray-400">
+                        <img :src="c.imgUrl" alt="pokemon" class="w-20 h-20" />
+                        <div class="absolute text-xs bottom-2 px-2 w-full bg-gray-400 text-white bg-opacity-80">{{ c.name }}</div>
+                      </div> -->
                     </div>
                   </div>
                 </div>

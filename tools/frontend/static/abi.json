@@ -1,0 +1,53 @@
+[
+   {
+      "type": "constructor",
+      "payable": false,
+      "inputs": [
+        { "type": "string", "name": "symbol" },
+        { "type": "string", "name": "name" }
+      ]
+   },
+   {
+      "constant":true,
+      "inputs":[],
+      "name":"symbol",
+      "outputs":[
+         {
+            "name":"",
+            "type":"string"
+         }
+      ],
+      "payable":false,
+      "stateMutability":"view",
+      "type":"function"
+   },
+   {
+      "type": "function",
+      "name": "transferFrom",
+      "constant": false,
+      "payable": false,
+      "inputs": [
+        { "type": "address", "name": "from" },
+        { "type": "address", "name": "to" },
+        { "type": "uint256", "name": "value" }
+      ],
+      "outputs": [ ]
+   },
+   {
+      "constant":true,
+      "inputs":[
+         {
+            "name":"_owner",
+            "type":"address"
+         }
+      ],
+      "name":"balanceOf",
+      "outputs":[
+         {
+            "name":"balance",
+            "type":"uint256"
+         }
+      ],
+      "type":"function"
+   }
+]

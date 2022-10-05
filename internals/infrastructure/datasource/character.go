@@ -10,6 +10,7 @@ import (
 type Character struct {
 	ID        string    `json:"id"`
 	Name      string    `json:"name"`
+	ImgUrl    string    `json:"imgUrl"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }
@@ -55,17 +56,10 @@ func (ur *characterRepository) ToCharacterModel(character Character) *model.Char
 	return &model.Character{
 		ID:        character.ID,
 		Name:      character.Name,
+		ImgUrl:    character.ImgUrl,
 		CreatedAt: character.CreatedAt,
 		UpdatedAt: character.UpdatedAt,
 	}
-}
-
-func (cr *characterRepository) CreateUserCharacter(result *model.UserCharacter) error {
-	err := cr.db.Table("user_characters").Create(&result).Error
-	if err != nil {
-		return err
-	}
-	return nil
 }
 
 func (cr *characterRepository) DeleteCharacter(character *model.Character) error {
