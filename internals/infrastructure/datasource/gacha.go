@@ -1,9 +1,11 @@
 package datasource
 
 import (
+	"os"
 	"time"
 
 	"github.com/jinzhu/gorm"
+	godotenv "github.com/joho/godotenv"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 
 	"context"
@@ -84,14 +86,17 @@ func (gr *gachaRepository) ToGachaModel(gacha Gacha) *model.Gacha {
 }
 
 func (gr *gachaRepository) TransferToken() error {
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Println("Failed to read file: ", err)
+	}
 	client, err := ethclient.Dial("https://eth-ropsten.alchemyapi.io/v2/vxAxsV1d-Ry0cxaQgEu6g-c1D5U0sbdm")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	// load private key of the Wallet
-	privateKey, err := crypto.HexToECDSA("5cdaff27a5e4fd4436b0c643d2f90341224e4da423c544d6bed02e52a1db90b8")
-	// privateKey, err := crypto.HexToECDSA("fad9c8855b740a0b7ed4c221dbad0f33a83a49cad6b3fe8d5817ac83d38b6a19")
+	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
 		log.Fatal(err)
 	}
