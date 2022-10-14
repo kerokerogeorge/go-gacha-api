@@ -44,7 +44,7 @@ import { mapGetters, mapActions } from 'vuex'
 // import ABI_JSON from "../static/abi.json"
 import CONTRACT_ABI_JSON from "../static/contractAbi.json"
 
-const tokenContractAddress = '0x984a6eaecBE9e77339931E191B6bf314c6f65dab'
+const tokenContractAddress = '0x5Ef32351B273eECA76d4e2B0305078A3De082d6F'
 
 export default {
   data() {
@@ -94,6 +94,8 @@ export default {
         const signer = await provider.getSigner()
         this.address = await signer.getAddress()
         const contract = new ethers.Contract(tokenContractAddress, this.abi, provider)
+        console.log('contract')
+        console.log(contract)
         const result = (await contract.balanceOf(this.address)).toString()
         this.symbol = await contract.symbol()
         this.balance = await ethers.utils.formatUnits(result)

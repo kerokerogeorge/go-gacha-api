@@ -90,7 +90,7 @@ func (gr *gachaRepository) TransferToken() error {
 	if err != nil {
 		log.Println("Failed to read file: ", err)
 	}
-	client, err := ethclient.Dial("https://eth-ropsten.alchemyapi.io/v2/vxAxsV1d-Ry0cxaQgEu6g-c1D5U0sbdm")
+	client, err := ethclient.Dial(os.Getenv("URL"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func (gr *gachaRepository) TransferToken() error {
 	// Wallet address 0x は１０進数を１６進数で表している
 	toAddress := common.HexToAddress("0xEa58D2fFBa020c4f3152dB37E8896B4d233F849b")
 	// Token contract address
-	tokenAddress := common.HexToAddress("0x984a6eaecBE9e77339931E191B6bf314c6f65dab")
+	tokenAddress := common.HexToAddress(os.Getenv("TOKEN_ADDRESS"))
 
 	transferFnSignature := []byte("transfer(address,uint256)")
 	// Get the method ID of the function
@@ -162,7 +162,7 @@ func (gr *gachaRepository) TransferToken() error {
 		log.Fatal(err)
 	}
 
-	gasLimit := uint64(float64(estimatedGas) * 1.80)
+	gasLimit := uint64(float64(estimatedGas) * 2.4)
 
 	log.Println("Gas Limit:", gasLimit)
 	// Transaction
