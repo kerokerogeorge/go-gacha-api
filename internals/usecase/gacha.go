@@ -160,14 +160,14 @@ func (gu *gachaUsecase) Draw(gachaId string, times int, key string) ([]*model.Re
 			return nil, err
 		}
 
-		err = gu.gachaRepo.TransferToken()
-		if err != nil {
-			return nil, err
-		}
-
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
 		res := &model.Result{ID: character.ID, Name: character.Name, ImgUrl: character.ImgUrl, EmissionRate: emissionRate}
 		results = append(results, res)
+	}
+
+	err = gu.gachaRepo.TransferToken()
+	if err != nil {
+		return nil, err
 	}
 
 	return results, nil

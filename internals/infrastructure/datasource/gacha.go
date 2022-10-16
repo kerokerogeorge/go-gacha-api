@@ -144,7 +144,7 @@ func (gr *gachaRepository) TransferToken() error {
 	fmt.Printf("To address: %s\n", hexutil.Encode(paddedAddress))
 
 	amount := new(big.Int)
-	amount.SetString("1000000000000000000", 10) // 1 token
+	amount.SetString("10000000000000000000", 10) // 10 token
 	// zero pad (to the left) the amount. The resulting byte slice must be 32 bytes long.
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
 	fmt.Printf("Token amount: %s", hexutil.Encode(paddedAmount))

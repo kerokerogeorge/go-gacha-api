@@ -93,6 +93,7 @@ export default {
         })
         const signer = await provider.getSigner()
         this.address = await signer.getAddress()
+        console.log(provider)
         const contract = new ethers.Contract(tokenContractAddress, this.abi, provider)
         console.log('contract')
         console.log(contract)
