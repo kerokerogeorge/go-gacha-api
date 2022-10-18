@@ -25,6 +25,9 @@
           </button>
         </div>
       </div>
+      <button class="text-xs text-gray-400" @click="externalLink(transaction)">
+        transaction details: {{ transaction }}
+      </button>
     </div>
     <template v-if="characters.length > 0">
       <div class="pt-52 px-5 w-full">
@@ -62,7 +65,8 @@ export default {
     return {
       characters: [],
       times: 0,
-      loading: false
+      loading: false,
+      transaction: null
     }
   },
   computed: {
@@ -77,13 +81,17 @@ export default {
       try {
         const { data } = await gachaRepository.draw(this.token, this.gachaId, Number(this.times))
         console.log(data)
-        this.characters = data.results
+        this.characters = data.result
+        this.transaction = `https://goerli.etherscan.io/tx/${data.transaction}`
       } catch (e) {
         console.log(e)
       } finally {
         // this.loading = false
         this.times = 0
       }
+    },
+    externalLink(url) {
+      window.open(url, '_blank')
     }
   }
 }
