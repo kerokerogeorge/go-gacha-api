@@ -6,6 +6,7 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/repository"
 	"github.com/kerokerogeorge/go-gacha-api/internals/helper"
@@ -15,7 +16,7 @@ type GachaUsecase interface {
 	Create() (*model.Gacha, error)
 	List() ([]*model.Gacha, error)
 	Get(gachaId string) (*model.Gacha, error)
-	Draw(gachaId string, times int, key string) ([]*model.Result, error)
+	Draw(ctx *gin.Context, gachaId string, times int, key string) ([]*model.Result, string, error)
 	Delete(gachaId string) error
 	GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error)
 	DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error
@@ -102,15 +103,15 @@ func (gu *gachaUsecase) Get(gachaId string) (*model.Gacha, error) {
 	return gachaWithCharacters, err
 }
 
-func (gu *gachaUsecase) Draw(gachaId string, times int, key string) ([]*model.Result, error) {
+func (gu *gachaUsecase) Draw(ctx *gin.Context, gachaId string, times int, key string) ([]*model.Result, string, error) {
 	user, err := gu.userRepo.GetUser(key)
 	if err != nil {
-		return nil, errors.New("authentication failed")
+		return nil, "", errors.New("authentication failed")
 	}
 
 	charactersWithEmmitionRate, err := gu.characterEmmitionRateRepo.GetCharacterWithEmmitionRate(gachaId)
 	if err != nil {
-		return nil, errors.New("characters not found")
+		return nil, "", errors.New("characters not found")
 	}
 
 	var results []*model.Result
@@ -147,17 +148,17 @@ func (gu *gachaUsecase) Draw(gachaId string, times int, key string) ([]*model.Re
 
 		character, err := gu.characterRepo.GetCharacter(selectedCharacterId)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 
 		newUserCharacter, err := model.NewUserCharacter(user.ID, character.ID, character.ImgUrl, emissionRate)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 
 		err = gu.userCharcacterRepo.CreateUserCharacter(newUserCharacter)
 		if err != nil {
-			return nil, err
+			return nil, "", err
 		}
 
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
@@ -165,12 +166,12 @@ func (gu *gachaUsecase) Draw(gachaId string, times int, key string) ([]*model.Re
 		results = append(results, res)
 	}
 
-	err = gu.gachaRepo.TransferToken()
+	transaction, err := gu.gachaRepo.TransferToken(ctx)
 	if err != nil {
-		return nil, err
+		return nil, "", err
 	}
 
-	return results, nil
+	return results, transaction, nil
 }
 
 func (gu *gachaUsecase) Delete(gachaId string) error {

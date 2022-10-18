@@ -4,11 +4,11 @@ import (
 	"os"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
 	godotenv "github.com/joho/godotenv"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 
-	"context"
 	"fmt"
 	"log"
 
@@ -85,35 +85,35 @@ func (gr *gachaRepository) ToGachaModel(gacha Gacha) *model.Gacha {
 	}
 }
 
-func (gr *gachaRepository) TransferToken() error {
+func (gr *gachaRepository) TransferToken(ctx *gin.Context) (string, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Println("Failed to read file: ", err)
+		return "", err
 	}
 	client, err := ethclient.Dial(os.Getenv("URL"))
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	// load private key of the Wallet
 	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	publicKey := privateKey.Public()                   // 公開鍵を含むインタフェースをreturn
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey) // 型アサーション、publicKey変数の型を明示的に設定
 	if !ok {
-		log.Fatal("cannot assert type: publicKey is not of type *ecdsa.PublicKey")
+		return "", err
 	}
 
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
 	log.Println("fromAddress: ", fromAddress)
 
 	// 次のトランザクションに使用するnonceの読み込み
-	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	nonce, err := client.PendingNonceAt(ctx, fromAddress)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	// トランザクションのETHの量の設定、ERC20を転送するためETHの値は０。Tokenの値はdataのフィールドに設定する
@@ -122,9 +122,9 @@ func (gr *gachaRepository) TransferToken() error {
 	// Token transfers don't require ETH to be transferred so set the value to 0
 	value := big.NewInt(0) // = wei (0 eth)
 
-	gasPrice, err := client.SuggestGasPrice(context.Background())
+	gasPrice, err := client.SuggestGasPrice(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	// Wallet address 0x は１０進数を１６進数で表している
@@ -154,37 +154,37 @@ func (gr *gachaRepository) TransferToken() error {
 	data = append(data, paddedAddress...)
 	data = append(data, paddedAmount...)
 
-	estimatedGas, err := client.EstimateGas(context.Background(), ethereum.CallMsg{
+	estimatedGas, err := client.EstimateGas(ctx, ethereum.CallMsg{
 		To:   &toAddress,
 		Data: data,
 	})
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
-	gasLimit := uint64(float64(estimatedGas) * 2.4)
+	gasLimit := uint64(float64(estimatedGas) * 1.8)
 
 	log.Println("Gas Limit:", gasLimit)
 	// Transaction
 	tx := types.NewTransaction(nonce, tokenAddress, value, gasLimit, gasPrice, data)
 	// sign the transaction with the private key of the sender
 	// The SignTx method requires the EIP155 signer.
-	chainID, err := client.NetworkID(context.Background())
+	chainID, err := client.NetworkID(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	// broadcast the transaction
-	err = client.SendTransaction(context.Background(), signedTx)
+	err = client.SendTransaction(ctx, signedTx)
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	fmt.Printf("Tokens sent at TX: %s", signedTx.Hash().Hex())
 
-	return err
+	return signedTx.Hash().Hex(), err
 }
