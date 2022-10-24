@@ -1,6 +1,7 @@
 package datasource
 
 import (
+	"log"
 	"os"
 	"time"
 
@@ -10,7 +11,6 @@ import (
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 
 	"fmt"
-	"log"
 
 	"crypto/ecdsa"
 	"math/big"
@@ -88,31 +88,35 @@ func (gr *gachaRepository) ToGachaModel(gacha Gacha) *model.Gacha {
 func (gr *gachaRepository) TransferToken(ctx *gin.Context) (string, error) {
 	err := godotenv.Load(".env")
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 	client, err := ethclient.Dial(os.Getenv("URL"))
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
 	// load private key of the Wallet
 	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
 	publicKey := privateKey.Public()                   // 公開鍵を含むインタフェースをreturn
 	publicKeyECDSA, ok := publicKey.(*ecdsa.PublicKey) // 型アサーション、publicKey変数の型を明示的に設定
 	if !ok {
+		log.Println(err)
 		return "", err
 	}
 
 	fromAddress := crypto.PubkeyToAddress(*publicKeyECDSA)
-	log.Println("fromAddress: ", fromAddress)
 
 	// 次のトランザクションに使用するnonceの読み込み
 	nonce, err := client.PendingNonceAt(ctx, fromAddress)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
@@ -124,11 +128,12 @@ func (gr *gachaRepository) TransferToken(ctx *gin.Context) (string, error) {
 
 	gasPrice, err := client.SuggestGasPrice(ctx)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
 	// Wallet address 0x は１０進数を１６進数で表している
-	toAddress := common.HexToAddress("0xEa58D2fFBa020c4f3152dB37E8896B4d233F849b")
+	toAddress := common.HexToAddress(os.Getenv("TO_ADDRESS"))
 	// Token contract address
 	tokenAddress := common.HexToAddress(os.Getenv("TOKEN_ADDRESS"))
 
@@ -137,17 +142,14 @@ func (gr *gachaRepository) TransferToken(ctx *gin.Context) (string, error) {
 	hash := sha3.NewLegacyKeccak256()
 	hash.Write(transferFnSignature)
 	methodID := hash.Sum(nil)[:4] // The first 4 bytes of the resulting hash is the methodId: コントラクトのメソッドをbyte形式にしてKECCAK-256でハッシュ化し、先頭から４バイト取ってきたもの
-	fmt.Printf("Method ID: %s\n", hexutil.Encode(methodID))
 
 	// zero pad (to the left) the account address. The resulting byte slice must be 32 bytes long.
 	paddedAddress := common.LeftPadBytes(toAddress.Bytes(), 32)
-	fmt.Printf("To address: %s\n", hexutil.Encode(paddedAddress))
 
 	amount := new(big.Int)
 	amount.SetString("10000000000000000000", 10) // 10 token
 	// zero pad (to the left) the amount. The resulting byte slice must be 32 bytes long.
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
-	fmt.Printf("Token amount: %s", hexutil.Encode(paddedAmount))
 
 	var data []byte
 	data = append(data, methodID...)
@@ -155,36 +157,59 @@ func (gr *gachaRepository) TransferToken(ctx *gin.Context) (string, error) {
 	data = append(data, paddedAmount...)
 
 	estimatedGas, err := client.EstimateGas(ctx, ethereum.CallMsg{
-		To:   &toAddress,
-		Data: data,
+		From:     fromAddress,
+		To:       &tokenAddress,
+		Data:     data,
+		Value:    value,
+		GasPrice: gasPrice,
 	})
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
-	gasLimit := uint64(float64(estimatedGas) * 1.8)
-
-	log.Println("Gas Limit:", gasLimit)
-	// Transaction
-	tx := types.NewTransaction(nonce, tokenAddress, value, gasLimit, gasPrice, data)
+	gasLimit := uint64(float64(estimatedGas))
+	tx := types.NewTx(&types.LegacyTx{
+		Nonce:    nonce,
+		To:       &tokenAddress,
+		Value:    value,
+		Gas:      estimatedGas,
+		GasPrice: gasPrice,
+		Data:     data,
+	})
 	// sign the transaction with the private key of the sender
 	// The SignTx method requires the EIP155 signer.
 	chainID, err := client.NetworkID(ctx)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
 	// broadcast the transaction
 	err = client.SendTransaction(ctx, signedTx)
 	if err != nil {
+		log.Println(err)
 		return "", err
 	}
 
-	fmt.Printf("Tokens sent at TX: %s", signedTx.Hash().Hex())
+	fmt.Printf("===================================================")
+	fmt.Printf("nonce: %d\n", nonce)
+	fmt.Printf("From Address: %s\n", fromAddress)
+	fmt.Printf("TOKEN Address: %s\n", tokenAddress)
+	fmt.Printf("To address: %s\n", hexutil.Encode(paddedAddress))
+	fmt.Printf("Token amount: %s\n", hexutil.Encode(paddedAmount))
+	fmt.Printf("Method ID: %s\n", hexutil.Encode(methodID))
+	fmt.Printf("data length: %d\n", len(data))
+	fmt.Printf("estimated Gas: %d\n", estimatedGas)
+	fmt.Printf("Gas Limit: %d\n", gasLimit)
+	fmt.Printf("Gas Price: %d\n", gasPrice)
+	fmt.Printf("Tokens sent at TX: %s\n", signedTx.Hash().Hex())
+	fmt.Printf("===================================================")
 
 	return signedTx.Hash().Hex(), err
 }
