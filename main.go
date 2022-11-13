@@ -1,9 +1,14 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"github.com/kerokerogeorge/go-gacha-api/internals/config"
 	"github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/datasource"
+	"github.com/kerokerogeorge/go-gacha-api/internals/infrastructure/externals"
 	"github.com/kerokerogeorge/go-gacha-api/internals/interface/handler"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
 	swaggerFiles "github.com/swaggo/files"
@@ -28,23 +33,30 @@ func main() {
 		// cookieなどの情報を必要とするかどうか
 		AllowCredentials: false,
 	}
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Println(err)
+	}
 	r.Use(cors.New(config))
 	r = NewGin(r)
 	r.Run(":8000")
 }
 
 func NewGin(e *gin.Engine) *gin.Engine {
+	// externals
+	ethClient := config.NewEthClient()
 	// datasource
 	ur := datasource.NewUserRepository(datasource.DB)
 	cr := datasource.NewCharacterRepository(datasource.DB)
 	gr := datasource.NewGachaRepository(datasource.DB)
 	cerr := datasource.NewCharacterEmmitionRateRepository(datasource.DB)
 	ucr := datasource.NewUserCharacterRepository(datasource.DB)
+	ecr := externals.NewEthereumRepository(ethClient)
 
 	// usecase
 	uu := usecase.NewUserUsecase(ur, ucr)
 	cu := usecase.NewCharacterUsecase(cr, cerr, ucr)
-	gu := usecase.NewGachaUsecase(gr, ur, ucr, cr, cerr)
+	gu := usecase.NewGachaUsecase(gr, ur, ucr, cr, cerr, ecr)
 
 	// handler
 	uh := handler.NewUserHandler(uu)
