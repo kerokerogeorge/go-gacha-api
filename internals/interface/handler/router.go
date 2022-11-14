@@ -37,5 +37,9 @@ func SetApiRoutes(
 		gacha.POST("/draw/:gachaId", gh.Draw) // ガチャ実行API
 		gacha.DELETE("/:gachaId", gh.Delete)  // ガチャ削除API
 	}
+	// test := e.Group("/test")
+	// {
+	// 	test.POST("/payload", gh.CreateTokenTransferTransaction)
+	// }
 	return e
 }

@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"math/big"
 	"net/http"
 
 	"github.com/ethereum/go-ethereum/core/types"
@@ -27,11 +28,11 @@ type GachaListResponse struct {
 }
 
 type CreateGachaRequest struct {
-	Times           int    `json:"times"`
-	FromAddress     string `json:"fromAddress"`
-	ToAddress       string `json:"toAddress"`
-	ContractAddress string `json:"contractAddress"`
-	Amount          int    `json:"amount"`
+	Times           int      `json:"times"`
+	FromAddress     string   `json:"fromAddress"`
+	ToAddress       string   `json:"toAddress"`
+	ContractAddress string   `json:"contractAddress"`
+	Amount          *big.Int `json:"amount"`
 }
 
 type CreateGachaResponse struct {
@@ -137,7 +138,7 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 
 	results, transaction, err := gh.gachaUsecase.Draw(c, c.Param("gachaId"), req.Times, key, req.FromAddress, req.ToAddress, req.ContractAddress, req.Amount)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "draw gacha failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 

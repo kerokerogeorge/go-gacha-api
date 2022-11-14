@@ -21,7 +21,7 @@ func NewEthereumRepository(ethClient *ethclient.Client) *ethereumRepository {
 	}
 }
 
-func (er *ethereumRepository) TransferToken(ctx *gin.Context, from string, to string, contract string, transferAmountOfToken int) (*types.Transaction, error) {
+func (er *ethereumRepository) TransferToken(ctx *gin.Context, from string, to string, contract string, transferAmountOfToken *big.Int) (*types.Transaction, error) {
 	fromAddress := common.HexToAddress(from)
 	toAddress := common.HexToAddress(to)
 	tokenAddress := common.HexToAddress(contract)
@@ -45,7 +45,7 @@ func (er *ethereumRepository) TransferToken(ctx *gin.Context, from string, to st
 	methodID := hash.Sum(nil)[:4]
 	paddedAddress := common.LeftPadBytes(toAddress.Bytes(), 32)
 
-	amount := big.NewInt(int64(transferAmountOfToken))
+	amount := transferAmountOfToken
 	paddedAmount := common.LeftPadBytes(amount.Bytes(), 32)
 
 	var data []byte

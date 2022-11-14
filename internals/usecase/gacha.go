@@ -3,6 +3,7 @@ package usecase
 import (
 	"errors"
 	"math"
+	"math/big"
 	"strconv"
 
 	"github.com/ethereum/go-ethereum/core/types"
@@ -16,7 +17,7 @@ type GachaUsecase interface {
 	Create() (*model.Gacha, error)
 	List() ([]*model.Gacha, error)
 	Get(gachaId string) (*model.Gacha, error)
-	Draw(ctx *gin.Context, gachaId string, times int, key string, from string, to string, contract string, amount int) ([]*model.Result, *types.Transaction, error)
+	Draw(ctx *gin.Context, gachaId string, times int, key string, from string, to string, contract string, amount *big.Int) ([]*model.Result, *types.Transaction, error)
 	Delete(gachaId string) error
 	GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error)
 	DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error
@@ -106,7 +107,7 @@ func (gu *gachaUsecase) Get(gachaId string) (*model.Gacha, error) {
 	return gachaWithCharacters, err
 }
 
-func (gu *gachaUsecase) Draw(ctx *gin.Context, gachaId string, times int, key string, from string, to string, contract string, amount int) ([]*model.Result, *types.Transaction, error) {
+func (gu *gachaUsecase) Draw(ctx *gin.Context, gachaId string, times int, key string, from string, to string, contract string, amount *big.Int) ([]*model.Result, *types.Transaction, error) {
 	user, err := gu.userRepo.GetUser(key)
 	if err != nil {
 		return nil, nil, errors.New("authentication failed")
