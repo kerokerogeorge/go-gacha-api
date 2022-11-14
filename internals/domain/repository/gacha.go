@@ -9,5 +9,4 @@ type GachaRepository interface {
 	List() ([]*model.Gacha, error)
 	GetOne(gachaId string) (*model.Gacha, error)
 	DeleteGacha(gacha *model.Gacha) error
-	TransferToken() error
 }

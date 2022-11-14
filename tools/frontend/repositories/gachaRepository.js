@@ -15,10 +15,9 @@ export default {
   delete (gachaId) {
     return repository.delete(`${resource}/${gachaId}`)
   },
-  draw (token, gachaId, times) {
-    return repository.post(`${resource}/draw/${gachaId}`, {
-      times: times,
-    },
+  draw (token, gachaId, params) {
+    return repository.post(`${resource}/draw/${gachaId}`,
+    params,
     {
       headers: {
         "x-token": token

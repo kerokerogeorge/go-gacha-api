@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"math/big"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
@@ -26,18 +28,20 @@ type GachaListResponse struct {
 }
 
 type CreateGachaRequest struct {
-	Times int `json:"times"`
+	Times           int      `json:"times"`
+	FromAddress     string   `json:"fromAddress"`
+	ToAddress       string   `json:"toAddress"`
+	ContractAddress string   `json:"contractAddress"`
+	Amount          *big.Int `json:"amount"`
 }
-
-// type GachaResultResponse struct {
-// 	ID           string  `json:"characterId"`
-// 	Name         string  `json:"name"`
-// 	ImgUrl       string  `json:"imgUrl"`
-// 	EmissionRate float64 `json:"emissionRate"`
-// }
 
 type CreateGachaResponse struct {
 	GachaId string `json:"id"`
+}
+
+type DrawGachaResponse struct {
+	Transaction *types.Transaction `json:"transaction"`
+	Result      []*model.Result    `json:"result"`
 }
 
 type gachaHandler struct {
@@ -117,7 +121,7 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 // @Param x-token header string true "x-token"
 // @Param gachaId path string true "gachaId"
 // @Param times body string true "ガチャを実行する回数"
-// @Success 200 {object} []model.Result
+// @Success 200 {object} DrawGachaResponse
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Draw(c *gin.Context) {
 	var req CreateGachaRequest
@@ -132,13 +136,16 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 		return
 	}
 
-	results, err := gh.gachaUsecase.Draw(c.Param("gachaId"), req.Times, key)
+	results, transaction, err := gh.gachaUsecase.Draw(c, c.Param("gachaId"), req.Times, key, req.FromAddress, req.ToAddress, req.ContractAddress, req.Amount)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "draw gacha failed"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"results": results})
+	c.JSON(http.StatusOK, &DrawGachaResponse{
+		Result:      results,
+		Transaction: transaction,
+	})
 }
 
 // @Summary ガチャを削除するAPI

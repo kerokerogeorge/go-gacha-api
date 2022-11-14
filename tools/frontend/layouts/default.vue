@@ -44,7 +44,7 @@ import { mapGetters, mapActions } from 'vuex'
 // import ABI_JSON from "../static/abi.json"
 import CONTRACT_ABI_JSON from "../static/contractAbi.json"
 
-const tokenContractAddress = '0x984a6eaecBE9e77339931E191B6bf314c6f65dab'
+const tokenContractAddress = '0x5Ef32351B273eECA76d4e2B0305078A3De082d6F'
 
 export default {
   data() {
@@ -88,12 +88,15 @@ export default {
         if(!window.ethereum) return
         this.accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
         const provider = new ethers.providers.Web3Provider(window.ethereum)
-        provider.getBalance("0x63c7a33d940113c8d9634fff125efa564aa4cc0c").then((result)=>{
+        provider.getBalance("0x63C7a33D940113c8D9634FfF125efA564aA4cc0c").then((result)=>{
           this.etherBalance = ethers.utils.formatEther(result)
         })
         const signer = await provider.getSigner()
         this.address = await signer.getAddress()
+        console.log(provider)
         const contract = new ethers.Contract(tokenContractAddress, this.abi, provider)
+        console.log('contract')
+        console.log(contract)
         const result = (await contract.balanceOf(this.address)).toString()
         this.symbol = await contract.symbol()
         this.balance = await ethers.utils.formatUnits(result)
