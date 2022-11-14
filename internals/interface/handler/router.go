@@ -10,6 +10,7 @@ func SetApiRoutes(
 	uh UserHandler,
 	ch CharacterHandler,
 	gh GachaHandler,
+	uch UserCharacterHandler,
 ) *gin.Engine {
 	docs.SwaggerInfo.BasePath = ""
 	user := e.Group("/user")
@@ -36,6 +37,10 @@ func SetApiRoutes(
 		gacha.GET("/:gachaId", gh.Get)        // 一件のガチャ取得API
 		gacha.POST("/draw/:gachaId", gh.Draw) // ガチャ実行API
 		gacha.DELETE("/:gachaId", gh.Delete)  // ガチャ削除API
+	}
+	userCharacter := e.Group("/user_character")
+	{
+		userCharacter.PUT("", uch.Update) // ユーザーのキャラクターのステータス変更API
 	}
 	// test := e.Group("/test")
 	// {

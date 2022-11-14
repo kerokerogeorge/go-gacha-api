@@ -8,7 +8,7 @@ import (
 )
 
 type UserCharacter struct {
-	ID           string          `json:"id" gorm:"primary_key"`
+	ID           uint            `json:"id"`
 	UserId       string          `json:"userId"`
 	CharacterId  string          `json:"characterId"`
 	ImgUrl       string          `json:"imgUrl"`
@@ -27,7 +27,7 @@ const (
 )
 
 type Result struct {
-	ID           string          `json:"userCharacterId"`
+	ID           uint            `json:"userCharacterId"`
 	CharacterId  string          `json:"characterId"`
 	Name         string          `json:"name"`
 	ImgUrl       string          `json:"imgUrl"`

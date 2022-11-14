@@ -8,7 +8,7 @@ import (
 )
 
 type UserCharacter struct {
-	ID           string                `json:"id"`
+	ID           uint                  `json:"id" gorm:"primary_key"`
 	UserId       string                `json:"userId"`
 	CharacterId  string                `json:"characterId"`
 	ImgUrl       string                `json:"imgUrl"`
@@ -16,15 +16,6 @@ type UserCharacter struct {
 	Status       model.CharacterStatus `json:"status"`
 	CreatedAt    time.Time             `json:"createdAt"`
 	UpdatedAt    time.Time             `json:"updatedAt"`
-}
-
-type Result struct {
-	ID           string                `json:"usercharacterId"`
-	CharacterId  string                `json:"characterId"`
-	Name         string                `json:"name"`
-	ImgUrl       string                `json:"imgUrl"`
-	Status       model.CharacterStatus `json:"status"`
-	EmissionRate float64               `json:"emissionRate"`
 }
 
 type userCharcacterRepository struct {
@@ -38,17 +29,17 @@ func NewUserCharacterRepository(database *gorm.DB) *userCharcacterRepository {
 	}
 }
 
-func (uch *userCharcacterRepository) CreateUserCharacter(userCharacter *model.UserCharacter) (*model.UserCharacter, error) {
-	err := uch.db.Table("user_characters").Create(&userCharacter).Error
+func (ucr *userCharcacterRepository) CreateUserCharacter(userCharacter *model.UserCharacter) (*model.UserCharacter, error) {
+	err := ucr.db.Table("user_characters").Create(&userCharacter).Error
 	if err != nil {
 		return nil, err
 	}
 	return userCharacter, nil
 }
 
-func (uch *userCharcacterRepository) GetResults(userId string) ([]*model.Result, error) {
+func (ucr *userCharcacterRepository) GetResults(userId string) ([]*model.Result, error) {
 	var results []*model.Result
-	err := uch.db.Table("users").Select("user_characters.id, user_characters.character_id, characters.name, user_characters.img_url, user_characters.emission_rate").
+	err := ucr.db.Table("users").Select("user_characters.id, user_characters.character_id, characters.name, user_characters.img_url, user_characters.emission_rate").
 		Joins("INNER JOIN user_characters ON user_characters.user_id = ?", userId).
 		Joins("INNER JOIN characters ON user_characters.character_id = characters.id").
 		Where("users.id = ?", userId).
@@ -60,9 +51,9 @@ func (uch *userCharcacterRepository) GetResults(userId string) ([]*model.Result,
 	return results, nil
 }
 
-func (uch *userCharcacterRepository) GetUserCharacters(id string, queryType string) ([]*model.UserCharacter, error) {
+func (ucr *userCharcacterRepository) GetUserCharacters(id string, queryType string) ([]*model.UserCharacter, error) {
 	var results []*model.UserCharacter
-	table := uch.db.Table("user_characters")
+	table := ucr.db.Table("user_characters")
 
 	if queryType == "CHARACTER" {
 		table = table.Where("character_id = ?", id)
@@ -77,10 +68,40 @@ func (uch *userCharcacterRepository) GetUserCharacters(id string, queryType stri
 	return results, nil
 }
 
-func (uch *userCharcacterRepository) DeleteUserCharacter(userCharacter *model.UserCharacter) error {
-	err := uch.db.Delete(&userCharacter).Error
+func (ucr *userCharcacterRepository) DeleteUserCharacter(userCharacter *model.UserCharacter) error {
+	err := ucr.db.Delete(&userCharacter).Error
 	if err != nil {
 		return err
 	}
 	return nil
+}
+
+func (ucr *userCharcacterRepository) GetOne(userCharacterID uint) (*model.UserCharacter, error) {
+	var userCharacter UserCharacter
+	err := ucr.db.Table("user_characters").Where("id = ?", userCharacterID).First(&userCharacter).Error
+	if err != nil {
+		return nil, err
+	}
+	return ucr.ToUserCharacterModel(userCharacter), nil
+}
+
+func (ucr *userCharcacterRepository) UpdateUsercharacter(userCharacter *model.UserCharacter, status model.CharacterStatus) (*model.UserCharacter, error) {
+	database := ucr.db.Model(&userCharacter).Update("status", status)
+	if database.Error != nil {
+		return nil, database.Error
+	}
+	return userCharacter, nil
+}
+
+func (ucr *userCharcacterRepository) ToUserCharacterModel(userCharacter UserCharacter) *model.UserCharacter {
+	return &model.UserCharacter{
+		ID:           userCharacter.ID,
+		UserId:       userCharacter.UserId,
+		CharacterId:  userCharacter.CharacterId,
+		ImgUrl:       userCharacter.ImgUrl,
+		EmissionRate: userCharacter.EmissionRate,
+		Status:       userCharacter.Status,
+		CreatedAt:    userCharacter.CreatedAt,
+		UpdatedAt:    userCharacter.UpdatedAt,
+	}
 }
