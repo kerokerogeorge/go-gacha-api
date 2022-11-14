@@ -4,7 +4,6 @@ import (
 	"math/big"
 	"net/http"
 
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
@@ -40,8 +39,7 @@ type CreateGachaResponse struct {
 }
 
 type DrawGachaResponse struct {
-	Transaction *types.Transaction `json:"transaction"`
-	Result      []*model.Result    `json:"result"`
+	Result []*model.Result `json:"result"`
 }
 
 type gachaHandler struct {
@@ -136,15 +134,14 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 		return
 	}
 
-	results, transaction, err := gh.gachaUsecase.Draw(c, c.Param("gachaId"), req.Times, key, req.FromAddress, req.ToAddress, req.ContractAddress, req.Amount)
+	results, err := gh.gachaUsecase.Draw(c, c.Param("gachaId"), req.Times, key)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
 	c.JSON(http.StatusOK, &DrawGachaResponse{
-		Result:      results,
-		Transaction: transaction,
+		Result: results,
 	})
 }
 

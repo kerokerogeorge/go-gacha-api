@@ -11,6 +11,7 @@ func SetApiRoutes(
 	ch CharacterHandler,
 	gh GachaHandler,
 	uch UserCharacterHandler,
+	cth ContractHandler,
 ) *gin.Engine {
 	docs.SwaggerInfo.BasePath = ""
 	user := e.Group("/user")
@@ -41,6 +42,11 @@ func SetApiRoutes(
 	userCharacter := e.Group("/user_character")
 	{
 		userCharacter.PUT("", uch.Update) // ユーザーのキャラクターのステータス変更API
+	}
+
+	contract := e.Group("/contract")
+	{
+		contract.GET("/transfer", cth.GetTransferTokenTransactionPayload) // キャラクター一覧取得API
 	}
 	// test := e.Group("/test")
 	// {
