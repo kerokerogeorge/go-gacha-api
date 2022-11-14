@@ -3,10 +3,8 @@ package usecase
 import (
 	"errors"
 	"math"
-	"math/big"
 	"strconv"
 
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/repository"
@@ -17,7 +15,7 @@ type GachaUsecase interface {
 	Create() (*model.Gacha, error)
 	List() ([]*model.Gacha, error)
 	Get(gachaId string) (*model.Gacha, error)
-	Draw(ctx *gin.Context, gachaId string, times int, key string, from string, to string, contract string, amount *big.Int) ([]*model.Result, *types.Transaction, error)
+	Draw(ctx *gin.Context, gachaId string, times int, key string) ([]*model.Result, error)
 	Delete(gachaId string) error
 	GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error)
 	DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error
@@ -29,7 +27,6 @@ type gachaUsecase struct {
 	userCharcacterRepo        repository.UserCharcacterRepository
 	characterRepo             repository.CharacterRepository
 	characterEmmitionRateRepo repository.CharacterEmmitionRateRepository
-	ethereumRepo              repository.EthereumRepository
 }
 
 func NewGachaUsecase(
@@ -38,7 +35,6 @@ func NewGachaUsecase(
 	ucr repository.UserCharcacterRepository,
 	cr repository.CharacterRepository,
 	cerr repository.CharacterEmmitionRateRepository,
-	er repository.EthereumRepository,
 ) GachaUsecase {
 	return &gachaUsecase{
 		gachaRepo:                 gr,
@@ -46,7 +42,6 @@ func NewGachaUsecase(
 		userCharcacterRepo:        ucr,
 		characterRepo:             cr,
 		characterEmmitionRateRepo: cerr,
-		ethereumRepo:              er,
 	}
 }
 
@@ -107,15 +102,15 @@ func (gu *gachaUsecase) Get(gachaId string) (*model.Gacha, error) {
 	return gachaWithCharacters, err
 }
 
-func (gu *gachaUsecase) Draw(ctx *gin.Context, gachaId string, times int, key string, from string, to string, contract string, amount *big.Int) ([]*model.Result, *types.Transaction, error) {
+func (gu *gachaUsecase) Draw(ctx *gin.Context, gachaId string, times int, key string) ([]*model.Result, error) {
 	user, err := gu.userRepo.GetUser(key)
 	if err != nil {
-		return nil, nil, errors.New("authentication failed")
+		return nil, errors.New("authentication failed")
 	}
 
 	charactersWithEmmitionRate, err := gu.characterEmmitionRateRepo.GetCharacterWithEmmitionRate(gachaId)
 	if err != nil {
-		return nil, nil, errors.New("characters not found")
+		return nil, errors.New("characters not found")
 	}
 
 	var results []*model.Result
@@ -152,30 +147,25 @@ func (gu *gachaUsecase) Draw(ctx *gin.Context, gachaId string, times int, key st
 
 		character, err := gu.characterRepo.GetCharacter(selectedCharacterId)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		newUserCharacter, err := model.NewUserCharacter(user.ID, character.ID, character.ImgUrl, emissionRate)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
-		err = gu.userCharcacterRepo.CreateUserCharacter(newUserCharacter)
+		userCharacter, err := gu.userCharcacterRepo.CreateUserCharacter(newUserCharacter)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
 
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
-		res := &model.Result{ID: character.ID, Name: character.Name, ImgUrl: character.ImgUrl, EmissionRate: emissionRate}
+		res := &model.Result{ID: userCharacter.ID, CharacterId: character.ID, Name: character.Name, ImgUrl: character.ImgUrl, Status: userCharacter.Status, EmissionRate: emissionRate}
 		results = append(results, res)
 	}
 
-	transaction, err := gu.ethereumRepo.TransferToken(ctx, from, to, contract, amount)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return results, transaction, nil
+	return results, nil
 }
 
 func (gu *gachaUsecase) Delete(gachaId string) error {

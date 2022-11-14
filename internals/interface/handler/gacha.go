@@ -1,10 +1,8 @@
 package handler
 
 import (
-	"math/big"
 	"net/http"
 
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
@@ -27,21 +25,15 @@ type GachaListResponse struct {
 	ID string `json:"gachaId"`
 }
 
-type CreateGachaRequest struct {
-	Times           int      `json:"times"`
-	FromAddress     string   `json:"fromAddress"`
-	ToAddress       string   `json:"toAddress"`
-	ContractAddress string   `json:"contractAddress"`
-	Amount          *big.Int `json:"amount"`
-}
-
 type CreateGachaResponse struct {
 	GachaId string `json:"id"`
 }
 
+type DrawGachaRequest struct {
+	Times int `json:"times"`
+}
 type DrawGachaResponse struct {
-	Transaction *types.Transaction `json:"transaction"`
-	Result      []*model.Result    `json:"result"`
+	Result []*model.Result `json:"result"`
 }
 
 type gachaHandler struct {
@@ -124,7 +116,7 @@ func (gh *gachaHandler) Get(c *gin.Context) {
 // @Success 200 {object} DrawGachaResponse
 // @Failure 400 {object} helper.Error
 func (gh *gachaHandler) Draw(c *gin.Context) {
-	var req CreateGachaRequest
+	var req DrawGachaRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -136,15 +128,14 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 		return
 	}
 
-	results, transaction, err := gh.gachaUsecase.Draw(c, c.Param("gachaId"), req.Times, key, req.FromAddress, req.ToAddress, req.ContractAddress, req.Amount)
+	results, err := gh.gachaUsecase.Draw(c, c.Param("gachaId"), req.Times, key)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err})
 		return
 	}
 
 	c.JSON(http.StatusOK, &DrawGachaResponse{
-		Result:      results,
-		Transaction: transaction,
+		Result: results,
 	})
 }
 

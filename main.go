@@ -56,14 +56,18 @@ func NewGin(e *gin.Engine) *gin.Engine {
 	// usecase
 	uu := usecase.NewUserUsecase(ur, ucr)
 	cu := usecase.NewCharacterUsecase(cr, cerr, ucr)
-	gu := usecase.NewGachaUsecase(gr, ur, ucr, cr, cerr, ecr)
+	gu := usecase.NewGachaUsecase(gr, ur, ucr, cr, cerr)
+	ucu := usecase.NewUserCharacterUsecase(ucr)
+	ctu := usecase.NewContractUsecase(ecr)
 
 	// handler
 	uh := handler.NewUserHandler(uu)
 	ch := handler.NewCharacterHandler(cu)
 	gh := handler.NewGachaHandler(gu, cu, uu)
+	uch := handler.NewUserCharacterHandler(ucu)
+	cth := handler.NewContractHandler(ctu)
 
-	e = handler.SetApiRoutes(e, uh, ch, gh)
+	e = handler.SetApiRoutes(e, uh, ch, gh, uch, cth)
 
 	e.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	return e
