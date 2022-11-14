@@ -88,7 +88,7 @@ export default {
         if(!window.ethereum) return
         this.accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
         const provider = new ethers.providers.Web3Provider(window.ethereum)
-        provider.getBalance("0x63c7a33d940113c8d9634fff125efa564aa4cc0c").then((result)=>{
+        provider.getBalance("0x63C7a33D940113c8D9634FfF125efA564aA4cc0c").then((result)=>{
           this.etherBalance = ethers.utils.formatEther(result)
         })
         const signer = await provider.getSigner()
