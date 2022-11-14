@@ -10,7 +10,7 @@ import (
 )
 
 type ContractHandler interface {
-	GetTransferTokenTransactionPayload(c *gin.Context)
+	TransferTokenTransactionPayload(c *gin.Context)
 }
 
 type GetTransferTokenTransactionPayloadRequest struct {
@@ -21,7 +21,7 @@ type GetTransferTokenTransactionPayloadRequest struct {
 }
 
 type TransferTokenTransactionPayloadResponse struct {
-	Transaction *types.Transaction `json:"transaction"`
+	TransactionPayload *types.Transaction `json:"transactionPayload"`
 }
 
 type contractHandler struct {
@@ -34,13 +34,13 @@ func NewContractHandler(ctu usecase.ContractUsecase) *contractHandler {
 	}
 }
 
-// @Summary ガチャ一覧を取得するAPI
+// @Summary トークン送金に使用するトランザクションのペイロードを取得するAPI
 // @Router /contract/transfer [get]
 // @Description トークン送金に使用するトランザクションのペイロードを取得します
 // @Accept application/json
 // @Success 200 {object} []TransferTokenTransactionPayloadResponse
 // @Failure 400 {object} helper.Error
-func (cth *contractHandler) GetTransferTokenTransactionPayload(c *gin.Context) {
+func (cth *contractHandler) TransferTokenTransactionPayload(c *gin.Context) {
 	var req GetTransferTokenTransactionPayloadRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -53,6 +53,6 @@ func (cth *contractHandler) GetTransferTokenTransactionPayload(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, &TransferTokenTransactionPayloadResponse{
-		Transaction: payload,
+		TransactionPayload: payload,
 	})
 }
