@@ -160,13 +160,13 @@ func (gu *gachaUsecase) Draw(ctx *gin.Context, gachaId string, times int, key st
 			return nil, nil, err
 		}
 
-		err = gu.userCharcacterRepo.CreateUserCharacter(newUserCharacter)
+		userCharacter, err := gu.userCharcacterRepo.CreateUserCharacter(newUserCharacter)
 		if err != nil {
 			return nil, nil, err
 		}
 
 		// numと配列に格納したN番目の数字をnumに足した値の範囲にランダムに取得した値が含まれていれば、キャラクターIDをもとにキャラクターをDBから取得
-		res := &model.Result{ID: character.ID, Name: character.Name, ImgUrl: character.ImgUrl, EmissionRate: emissionRate}
+		res := &model.Result{ID: userCharacter.ID, CharacterId: character.ID, Name: character.Name, ImgUrl: character.ImgUrl, Status: userCharacter.Status, EmissionRate: emissionRate}
 		results = append(results, res)
 	}
 

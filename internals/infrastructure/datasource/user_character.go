@@ -8,21 +8,23 @@ import (
 )
 
 type UserCharacter struct {
-	ID           string    `json:"id"`
-	UserId       string    `json:"userId"`
-	CharacterId  string    `json:"characterId"`
-	ImgUrl       string    `json:"imgUrl"`
-	EmissionRate float64   `json:"emissionRate"`
-	CreatedAt    time.Time `json:"createdAt"`
-	UpdatedAt    time.Time `json:"updatedAt"`
+	ID           string                `json:"id"`
+	UserId       string                `json:"userId"`
+	CharacterId  string                `json:"characterId"`
+	ImgUrl       string                `json:"imgUrl"`
+	EmissionRate float64               `json:"emissionRate"`
+	Status       model.CharacterStatus `json:"status"`
+	CreatedAt    time.Time             `json:"createdAt"`
+	UpdatedAt    time.Time             `json:"updatedAt"`
 }
 
 type Result struct {
-	ID           string  `json:"usercharacterId"`
-	CharacterId  string  `json:"characterId"`
-	Name         string  `json:"name"`
-	ImgUrl       string  `json:"imgUrl"`
-	EmissionRate float64 `json:"emissionRate"`
+	ID           string                `json:"usercharacterId"`
+	CharacterId  string                `json:"characterId"`
+	Name         string                `json:"name"`
+	ImgUrl       string                `json:"imgUrl"`
+	Status       model.CharacterStatus `json:"status"`
+	EmissionRate float64               `json:"emissionRate"`
 }
 
 type userCharcacterRepository struct {
@@ -36,12 +38,12 @@ func NewUserCharacterRepository(database *gorm.DB) *userCharcacterRepository {
 	}
 }
 
-func (uch *userCharcacterRepository) CreateUserCharacter(userCharacter *model.UserCharacter) error {
+func (uch *userCharcacterRepository) CreateUserCharacter(userCharacter *model.UserCharacter) (*model.UserCharacter, error) {
 	err := uch.db.Table("user_characters").Create(&userCharacter).Error
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return userCharacter, nil
 }
 
 func (uch *userCharcacterRepository) GetResults(userId string) ([]*model.Result, error) {
@@ -50,6 +52,7 @@ func (uch *userCharcacterRepository) GetResults(userId string) ([]*model.Result,
 		Joins("INNER JOIN user_characters ON user_characters.user_id = ?", userId).
 		Joins("INNER JOIN characters ON user_characters.character_id = characters.id").
 		Where("users.id = ?", userId).
+		Where("user_characters.status = ?", model.CharacterStatusSuccess).
 		Scan(&results).Error
 	if err != nil {
 		return nil, err
