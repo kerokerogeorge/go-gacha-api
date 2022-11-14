@@ -20,8 +20,18 @@ export default {
     params,
     {
       headers: {
-        "x-token": token
+        'x-token': `${token}`
       }
     })
-  }
+  },
+  update (token,  params) {
+    return repository.put(`/user_character`,
+    params,
+    {
+      headers: {
+        "x-token": token
+      }
+    },
+    )
+  },
 }

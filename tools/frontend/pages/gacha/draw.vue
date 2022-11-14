@@ -26,8 +26,11 @@
             <template v-else-if="loading && fetched">
               <p class="text-blue-500">fetching...</p>
             </template>
-            <template v-else-if="!loading && fetched">
+            <template v-else-if="!loading && fetched && !isError">
               <p class="text-green-500">fetch finished</p>
+            </template>
+            <template v-else-if="!loading && fetched && isError">
+              <p class="text-green-500">fetch failed</p>
             </template>
           </div>
         </div>
@@ -51,16 +54,20 @@
         <div class="mt-10 border border-solid border-gray-500 text-gray-700 text-sm">
           <div class="flex py-2 border-b border-solid border-gray-500">
             <div class="ml-3 w-10" />
-            <div class="w-10">ID</div>
-            <div class="w-48">Name</div>
-            <div class="w-40">Emmition Rate</div>
+            <div class="w-1/12">ID</div>
+            <div class="w-1/12">CharacterID</div>
+            <div class="w-2/12">Name</div>
+            <div class="w-2/12">Emmition Rate</div>
+            <div class="w-3/12">Status</div>
           </div>
           <div v-for="(c, index) in characters" :key="index" class="">
             <div class="flex py-1 items-center">
               <div class="ml-3 w-10">{{ index + 1 }}</div>
-              <div class="w-10">{{ c.characterId }}</div>
-              <div class="w-48">{{ c.name }}</div>
-              <div class="w-40">{{ c.emissionRate }}%</div>
+              <div class="w-1/12">{{ c.userCharacterId }}</div>
+              <div class="w-1/12">{{ c.characterId }}</div>
+              <div class="w-2/12">{{ c.name }}</div>
+              <div class="w-2/12">{{ c.emissionRate }}%</div>
+              <div class="w-3/12">{{ c.status }}</div>
               <div class="relative border border-solid border-gray-400">
                 <img :src="c.imgUrl" alt="pokemon" class="w-20 h-20" />
                 <div class="absolute text-xs bottom-2 px-2 w-full bg-gray-400 text-white bg-opacity-80">{{ c.name }}</div>
@@ -76,6 +83,7 @@
 <script>
 import { mapGetters } from 'vuex'
 import gachaRepository from '~/repositories/gachaRepository'
+import smartContractRepository from '~/repositories/smartContractRepository'
 import Web3 from 'web3';
 const web3 = new Web3(Web3.givenProvider);
 
@@ -98,6 +106,7 @@ export default {
         myAddress: myAddress,
         toAddress: toAddress
       },
+      userCharactersIds: null
     }
   },
   computed: {
@@ -110,45 +119,17 @@ export default {
     async drawGacha () {
       this.fetched = true
       this.loading = true
+      this.isError = false
       try {
-        const transferAmount = 0.1
-        const drawReq = {
-          times: Number(this.times),
-          fromAddress: myAddress,
-          toAddress: toAddress,
-          contractAddress: tokenContractAddress,
-          amount: Number(web3.utils.toWei(transferAmount.toString(), "ether"))
-        }
-        const { data } = await gachaRepository.draw(
-          this.token,
-          this.gachaId,
-          drawReq
-        )
-        console.log(data)
-        this.characters = data.result
-
-        const accounts = await web3.eth.getAccounts();
-        const maxFeePerGas = Number(web3.utils.toBN(data.transaction.maxFeePerGas).toString())
-        const maxPriorityFeePerGas = Number(web3.utils.toBN(data.transaction.maxPriorityFeePerGas).toString())
-        const request = {
-            from: accounts[0],
-            to: data.transaction.to,
-            gas: data.transaction.gas,
-            value: data.transaction.value,
-            maxFeePerGas:
-              maxFeePerGas > maxPriorityFeePerGas ? maxFeePerGas : maxPriorityFeePerGas,
-            maxPriorityFeePerGas: maxPriorityFeePerGas,
-            // 参考
-            // https://goerli.etherscan.io/tx/0x2c74a240ca53e6411a33a0a1def610ae4855c3d7bcb9184b243342507225e713
-            nonce: data.transaction.nonce,
-            chainId: data.transaction.chainId,
-            input: data.transaction.input
-        }
+        await this.getGachaCharacters()
+        const payload = await this.getTransferTokenTransactionPayload()
+        const request = await this.createTransaction(payload)
         const tx = await web3.eth.sendTransaction(request)
-        console.log("request: ", request)
-        console.log("SUCCESS: ", tx);
+        await this.updateStatus(this.userCharactersIds, "success")
         this.transaction = `https://goerli.etherscan.io/tx/${tx.transactionHash}`
       } catch (e) {
+        this.isError = true
+        await this.updateStatus(this.userCharactersIds, "failed")
         console.log(e)
       } finally {
         this.times = 0
@@ -157,6 +138,71 @@ export default {
     },
     externalLink(url) {
       window.open(url, '_blank')
+    },
+    async getTransferTokenTransactionPayload() {
+      try {
+        const transferAmount = 0.1
+        const req = {
+          fromAddress: myAddress,
+          toAddress: toAddress,
+          contractAddress: tokenContractAddress,
+          amount: Number(web3.utils.toWei(transferAmount.toString(), "ether"))
+        }
+        const { data } = await smartContractRepository.getTransferTokenTransactionPayload(req)
+        return data.transactionPayload
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async createTransaction(payload) {
+      try {
+        const accounts = await web3.eth.getAccounts();
+        const maxFeePerGas = Number(web3.utils.toBN(payload.maxFeePerGas).toString())
+        const maxPriorityFeePerGas = Number(web3.utils.toBN(payload.maxPriorityFeePerGas).toString())
+        const request = {
+          from: accounts[0],
+          to: payload.to,
+          gas: payload.gas,
+          value: payload.value,
+          maxFeePerGas:
+            maxFeePerGas > maxPriorityFeePerGas ? maxFeePerGas : maxPriorityFeePerGas,
+          maxPriorityFeePerGas: maxPriorityFeePerGas,
+          nonce: payload.nonce,
+          chainId: payload.chainId,
+          input: payload.input
+        }
+        return request
+        // 参考
+        // https://goerli.etherscan.io/tx/0x2c74a240ca53e6411a33a0a1def610ae4855c3d7bcb9184b243342507225e713
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async getGachaCharacters() {
+      try {
+        const { data } = await gachaRepository.draw(this.token, this.gachaId, { times: Number(this.times) })
+        this.characters = data.result
+        this.userCharactersIds = data.result.map(uc => uc.userCharacterId)
+      } catch (e) {
+        console.log(e)
+      }
+    },
+    async updateStatus(userCharactersIds, status) {
+      try {
+        const params = {
+          status: status,
+          userCharacterIds: userCharactersIds
+        }
+        const { data } = await gachaRepository.update(
+          this.token,
+          params
+        )
+        this.characters.map(c => {
+          c.status = data.results[0].status
+        })
+      } catch (e) {
+        console.log(e)
+      }
     }
   }
 }
