@@ -3,7 +3,7 @@
     <div class="z-20 fixed w-full h-auto px-5 border-b border-solid border-gray-400 bg-white pt-3 pb-4">
       <div class="flex items-center">
         <div class="mr-3">
-          <div class="text-xs text-gray-500">
+          <div class="text-xs text-gray-500 bg-gray-50 p-2 rounded-lg">
             <p>tokenContractAddress: {{ addresses.tokenContractAddress }}</p>
             <p>vendorContractAddress: {{ addresses.vendorContractAddress }}</p>
             <p>myAddress: {{ addresses.myAddress }}</p>
@@ -34,15 +34,11 @@
             </template>
           </div>
         </div>
+        <div class="mx-2">
+          <button class="button button-blue" data-ripple-light="true" @click="recieveToken">RECEIVE TOKEN</button>
+        </div>
         <div>
-          <button
-            class="text-sm cursor-pointer rounded-full h-24 w-24 text-white"
-            :class="{'bg-green-300': !gachaId || !token || times === 0, 'bg-green-500 hover:bg-green-700': gachaId && token && times !== 0 }"
-            :disabled="!gachaId || !token || times === 0"
-            @click="drawGacha"
-          >
-            ガチャを引く
-          </button>
+          <button class="button button-green" data-ripple-light="true" :disabled="!gachaId || !token || times === 0" @click="drawGacha">draw gacha</button>
         </div>
       </div>
       <button class="text-xs text-gray-400" @click="externalLink(transaction)">
@@ -50,7 +46,7 @@
       </button>
     </div>
     <template v-if="characters.length > 0">
-      <div class="pt-52 px-5 w-full">
+      <div class="pt-60 px-5 w-full">
         <div class="mt-10 border border-solid border-gray-500 text-gray-700 text-sm">
           <div class="flex py-2 border-b border-solid border-gray-500">
             <div class="ml-3 w-10" />
@@ -82,6 +78,7 @@
 
 <script>
 import { mapGetters } from 'vuex'
+import { vendorABI } from '../../vendorAbi';
 import gachaRepository from '~/repositories/gachaRepository'
 import smartContractRepository from '~/repositories/smartContractRepository'
 import Web3 from 'web3';
@@ -106,7 +103,9 @@ export default {
         myAddress: myAddress,
         toAddress: toAddress
       },
-      userCharactersIds: null
+      userCharactersIds: null,
+      vendorAbi: vendorABI,
+      contract: null
     }
   },
   computed: {
@@ -114,6 +113,13 @@ export default {
       'gachaId',
       'token'
     ]),
+  },
+  async mounted () {
+    try {
+      this.contract = new web3.eth.Contract(this.vendorAbi, vendorContractAddress);
+    } catch (e) {
+      console.log(e)
+    }
   },
   methods: {
     async drawGacha () {
@@ -171,6 +177,7 @@ export default {
           chainId: payload.chainId,
           input: payload.input
         }
+        console.log("request: ", request)
         return request
         // 参考
         // https://goerli.etherscan.io/tx/0x2c74a240ca53e6411a33a0a1def610ae4855c3d7bcb9184b243342507225e713
@@ -202,6 +209,33 @@ export default {
         })
       } catch (e) {
         console.log(e)
+      }
+    },
+    async recieveToken() {
+      try {
+        this.loading = true
+        const payload = await this.getPayloadForTokenPurchase()
+        const request = await this.createTransaction(payload)
+        const tx = await web3.eth.sendTransaction(request)
+        this.transaction = `https://goerli.etherscan.io/tx/${tx.transactionHash}`
+      } catch (err) {
+        this.isError = true
+        console.error(err);
+        alert("Error purchasing tokens");
+      } finally {
+        this.loading = false
+      }
+    },
+    async getPayloadForTokenPurchase() {
+      try {
+        const req = {
+          fromAddress: myAddress,
+          contractAddress: vendorContractAddress,
+        }
+        const { data } = await smartContractRepository.getBuyTokenTransactionPayload(req)
+        return data.transactionPayload
+      } catch (err) {
+        console.error(err);
       }
     }
   }

@@ -7,4 +7,8 @@ export default {
     console.log(params)
     return repository.post(`${resource}/transfer`, params)
   },
+  getBuyTokenTransactionPayload (params) {
+    console.log(params)
+    return repository.post(`${resource}/buy`, params)
+  },
 }

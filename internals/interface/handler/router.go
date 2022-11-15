@@ -47,6 +47,7 @@ func SetApiRoutes(
 	contract := e.Group("/contract")
 	{
 		contract.POST("/transfer", cth.TransferTokenTransactionPayload) // キャラクター一覧取得API
+		contract.POST("/buy", cth.BuyTransactionPayload)                // キャラクター一覧取得API
 	}
 	// test := e.Group("/test")
 	// {

@@ -88,3 +88,64 @@ func (er *ethereumRepository) TransferToken(ctx *gin.Context, from string, to st
 
 	return tx, nil
 }
+
+func (er *ethereumRepository) BuyToken(ctx *gin.Context, from string, contract string) (*types.Transaction, error) {
+	fromAddress := common.HexToAddress(from)
+	tokenAddress := common.HexToAddress(contract)
+
+	nonce, err := er.ethclient.PendingNonceAt(ctx, fromAddress)
+	if err != nil {
+		return nil, err
+	}
+
+	value := big.NewInt(10000000000000)
+
+	gasTipCap, err := er.ethclient.SuggestGasTipCap(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	signature := []byte("buyTokens()")
+	hash := sha3.NewLegacyKeccak256()
+	hash.Write(signature)
+
+	methodID := hash.Sum(nil)[:4]
+
+	var data []byte
+	data = append(data, methodID...)
+
+	chainID, err := er.ethclient.NetworkID(ctx)
+	if err != nil {
+		return nil, err
+	}
+	gasLimit, err := er.ethclient.EstimateGas(ctx, ethereum.CallMsg{
+		To:    &tokenAddress,
+		Data:  data,
+		From:  fromAddress,
+		Value: value,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := er.ethclient.BlockByNumber(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	baseFee := block.BaseFee()
+	maxFee := baseFee.Mul(baseFee, big.NewInt(2))
+
+	tx := types.NewTx(&types.DynamicFeeTx{
+		ChainID:   chainID,
+		Nonce:     nonce,
+		To:        &tokenAddress,
+		Value:     value,
+		GasTipCap: gasTipCap,
+		GasFeeCap: maxFee,
+		Gas:       gasLimit,
+		Data:      data,
+	})
+
+	return tx, nil
+}

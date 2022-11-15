@@ -10,6 +10,7 @@ import (
 
 type ContractUsecase interface {
 	GetTransferTokenTransactionPayload(ctx *gin.Context, from string, to string, contract string, amount *big.Int) (*types.Transaction, error)
+	GetBuyTokenTransactionPayload(ctx *gin.Context, from string, contract string) (*types.Transaction, error)
 }
 
 type contractUsecase struct {
@@ -26,4 +27,8 @@ func NewContractUsecase(
 
 func (ctu *contractUsecase) GetTransferTokenTransactionPayload(ctx *gin.Context, from string, to string, contract string, amount *big.Int) (*types.Transaction, error) {
 	return ctu.ethereumRepo.TransferToken(ctx, from, to, contract, amount)
+}
+
+func (ctu *contractUsecase) GetBuyTokenTransactionPayload(ctx *gin.Context, from string, contract string) (*types.Transaction, error) {
+	return ctu.ethereumRepo.BuyToken(ctx, from, contract)
 }
