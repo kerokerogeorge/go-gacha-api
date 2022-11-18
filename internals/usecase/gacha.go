@@ -19,6 +19,7 @@ type GachaUsecase interface {
 	Delete(gachaId string) error
 	GetGachaCharacters(gachaId string) ([]*model.CharacterEmmitionRate, error)
 	DeleteGachaCharacters(gachaCharacters []*model.CharacterEmmitionRate) error
+	ListHistory(ctx *gin.Context, key string) ([]*model.Result, error)
 }
 
 type gachaUsecase struct {
@@ -200,4 +201,12 @@ func (gu *gachaUsecase) DeleteGachaCharacters(gachaCharacters []*model.Character
 	}
 
 	return nil
+}
+
+func (gu *gachaUsecase) ListHistory(ctx *gin.Context, key string) ([]*model.Result, error) {
+	user, err := gu.userRepo.GetUser(key)
+	if err != nil {
+		return nil, errors.New("authentication failed")
+	}
+	return gu.userCharcacterRepo.GetHistory(user.ID)
 }
