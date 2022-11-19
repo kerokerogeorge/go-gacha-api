@@ -65,7 +65,7 @@ func (uu *userUsecase) Delete(token string) error {
 func (uu *userUsecase) GetUserCharacters(token string) ([]*model.Result, error) {
 	user, err := uu.userRepo.GetUser(token)
 	if err != nil {
-		return nil, errors.New("authentication failed")
+		return nil, err
 	}
 	return uu.userCharcacterRepo.GetResults(user.ID)
 }

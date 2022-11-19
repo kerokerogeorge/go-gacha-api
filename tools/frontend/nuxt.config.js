@@ -32,7 +32,12 @@ export default {
 
   // Plugins to run before rendering page: https://go.nuxtjs.dev/config-plugins
   plugins: [
+    { src: '@/plugins/web3util.js' },
   ],
+
+  router: {
+    middleware: ['setup'],
+  },
 
   // Auto import components: https://go.nuxtjs.dev/config-components
   components: true,

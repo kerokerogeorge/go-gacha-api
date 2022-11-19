@@ -1,6 +1,8 @@
+import gachaRepository from '~/repositories/gachaRepository'
 export const state = () => ({
   gachaId: '',
-  token: ''
+  token: '',
+  gachas: null
 })
 
 export const mutations = {
@@ -9,6 +11,9 @@ export const mutations = {
   },
   setToken (state, token) {
     state.token = token
+  },
+  setGachas (state, gachas) {
+    state.gachas = gachas
   }
 }
 
@@ -19,6 +24,9 @@ export const getters = {
   token (state) {
     return state.token
   },
+  gachas (state) {
+    return state.gachas
+  }
 }
 
 export const actions = {
@@ -28,4 +36,8 @@ export const actions = {
   setUserToken(context, params) {
     context.commit('setToken', params.token)
   },
+  async fetchGachas(context, params) {
+    const { data } = await gachaRepository.getGachas()
+    context.commit('setGachas', data.data)
+  }
 }

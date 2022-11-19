@@ -39,7 +39,7 @@ func (ucr *userCharcacterRepository) CreateUserCharacter(userCharacter *model.Us
 
 func (ucr *userCharcacterRepository) GetResults(userId string) ([]*model.Result, error) {
 	var results []*model.Result
-	err := ucr.db.Table("users").Select("user_characters.id, user_characters.character_id, characters.name, user_characters.img_url, user_characters.emission_rate").
+	err := ucr.db.Table("users").Select("user_characters.id, user_characters.character_id, characters.name, user_characters.img_url, user_characters.emission_rate, user_characters.status").
 		Joins("INNER JOIN user_characters ON user_characters.user_id = ?", userId).
 		Joins("INNER JOIN characters ON user_characters.character_id = characters.id").
 		Where("users.id = ?", userId).
@@ -91,6 +91,18 @@ func (ucr *userCharcacterRepository) UpdateUsercharacter(userCharacter *model.Us
 		return nil, database.Error
 	}
 	return userCharacter, nil
+}
+
+func (ucr *userCharcacterRepository) GetHistory(userId string) ([]*model.Result, error) {
+	var results []*model.Result
+	err := ucr.db.Table("users").Select("user_characters.id, user_characters.character_id, characters.name, user_characters.img_url, user_characters.emission_rate, user_characters.status").
+		Joins("INNER JOIN user_characters ON user_characters.user_id = ?", userId).
+		Joins("INNER JOIN characters ON user_characters.character_id = characters.id").
+		Find(&results).Error
+	if err != nil {
+		return nil, err
+	}
+	return results, nil
 }
 
 func (ucr *userCharcacterRepository) ToUserCharacterModel(userCharacter UserCharacter) *model.UserCharacter {

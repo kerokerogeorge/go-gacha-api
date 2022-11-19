@@ -14,6 +14,7 @@ type GachaHandler interface {
 	Get(c *gin.Context)
 	Draw(c *gin.Context)
 	Delete(c *gin.Context)
+	ListResult(c *gin.Context)
 }
 
 type GetGachaResponse struct {
@@ -33,6 +34,10 @@ type DrawGachaRequest struct {
 	Times int `json:"times"`
 }
 type DrawGachaResponse struct {
+	Result []*model.Result `json:"result"`
+}
+
+type ResultHistoryResponse struct {
 	Result []*model.Result `json:"result"`
 }
 
@@ -154,4 +159,28 @@ func (gh *gachaHandler) Delete(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+// @Summary キャラ排出履歴一覧取得API
+// @Router /gacha/result [get]
+// @Description キャラ排出履歴一覧を取得します
+// @Accept application/json
+// @Success 200 {object} model.Result
+// @Failure 400 {object} helper.Error
+func (gh *gachaHandler) ListResult(c *gin.Context) {
+	key := c.Request.Header.Get("x-token")
+	if key == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
+		return
+	}
+
+	results, err := gh.gachaUsecase.ListHistory(c, key)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, &ResultHistoryResponse{
+		Result: results,
+	})
 }

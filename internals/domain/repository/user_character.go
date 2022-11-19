@@ -9,4 +9,5 @@ type UserCharcacterRepository interface {
 	DeleteUserCharacter(userCharacter *model.UserCharacter) error
 	GetOne(userCharacterID uint) (*model.UserCharacter, error)
 	UpdateUsercharacter(userCharacter *model.UserCharacter, status model.CharacterStatus) (*model.UserCharacter, error)
+	GetHistory(userId string) ([]*model.Result, error)
 }
