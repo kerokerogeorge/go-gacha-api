@@ -18,11 +18,8 @@
           <div v-for="(g, index) in gachas" :key="index" class="mt-2 text-xs">
             <div class="mr-3">ID: {{ g.gachaId }}</div>
             <div class="flex">
-              <div>
+              <div class="mr-2">
                 <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-green-400 hover:bg-green-600" @click="fetchGacha(g.gachaId)">キャラを表示</button>
-              </div>
-              <div class="mx-3">
-                <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-yellow-400 hover:bg-yellow-600" @click="selectGacha(g.gachaId)">ガチャを選択</button>
               </div>
               <div>
                 <button class="mt-2 py-1 px-2 text-xs rounded-md text-white bg-red-400 hover:bg-red-600" @click="deleteGacha(g.gachaId)">削除</button>
@@ -75,7 +72,6 @@ import gachaRepository from '~/repositories/gachaRepository'
 export default {
   data () {
     return {
-      gachas: null,
       characters: [],
       res: null,
       total: 0,
@@ -87,19 +83,13 @@ export default {
   },
   computed: {
     ...mapGetters('gacha', [
-      'gachaId'
+      'gachaId',
+      'gachas'
     ]),
-  },
-  async mounted () {
-    try {
-      await this.fetchGachas()
-    } catch (e) {
-      console.log(e)
-    }
   },
   methods: {
     ...mapActions('gacha', [
-      'selectGachaId',
+      'fetchGachas'
     ]),
     async createGacha () {
       try {
@@ -110,16 +100,6 @@ export default {
       } finally {
         await this.fetchGachas()
       }
-    },
-    async fetchGachas () {
-      try {
-        this.reset()
-        await this.selectGachaId({ gachaId: '' })
-        const { data } = await gachaRepository.getGachas()
-        this.gachas = data.data
-      } catch (e) {
-        console.log(e)
-      } finally {}
     },
     async fetchGacha (gachaId) {
       try {
@@ -158,11 +138,6 @@ export default {
       this.total = 0
       this.totalFixedRate = 0
       this.multiple = 0
-    },
-    async selectGacha (gachaId) {
-      try {
-        await this.selectGachaId({ gachaId: gachaId })
-      } catch (e) { console.log(e) }
     }
   }
 }

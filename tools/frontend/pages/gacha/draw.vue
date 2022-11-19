@@ -7,8 +7,8 @@
             <div class="text-xs text-gray-600 mt-2">user: {{ placeholder.user }}</div>
             <div class="select" :class="{'is-open-user': isOpen.user}">
               <span class="placeholder" @click="openToggle('USER')">{{ placeholder.user }}</span>
-              <ul v-for="(u, index) in users" :key="index">
-                <li @click="selectUser(u)">{{ u.name }}</li>
+              <ul>
+                <li v-for="(u, index) in users" :key="index" @click="selectUser(u)">{{ u.name }}</li>
               </ul>
             </div>
           </div>
@@ -16,8 +16,8 @@
             <div class="text-xs text-gray-600 mt-2">gacha: {{ placeholder.gacha }}</div>
             <div class="select" :class="{'is-open-gacha': isOpen.gacha}">
               <span class="placeholder" @click="openToggle('GACHA')">{{ placeholder.gacha }}</span>
-              <ul v-for="(g, index) in gachas" :key="index">
-                <li @click="selectGacha(g)">{{ g.gachaId }}</li>
+              <ul>
+                <li v-for="(g, index) in gachas" :key="index" @click="selectGacha(g)">{{ g.gachaId }}</li>
               </ul>
             </div>
           </div>
@@ -257,16 +257,25 @@ export default {
     async recieveToken() {
       try {
         this.loading = true
+        this.fetched = true
+        this.isError = false
         const payload = await this.getPayloadForTokenPurchase()
         const request = await this.createTransaction(payload)
         const tx = await web3.eth.sendTransaction(request)
         this.transaction = `https://goerli.etherscan.io/tx/${tx.transactionHash}`
-      } catch (err) {
+      } catch (e) {
         this.isError = true
-        console.error(err);
+        console.error(e);
         alert("Error purchasing tokens");
       } finally {
         this.loading = false
+        await this.fetchTokenBalance()
+        if (!this.isError) {
+          await this.$store.commit('web3/setHighlight', true)
+          setTimeout(async () => {
+            await this.$store.commit('web3/setHighlight', false)
+          }, 6000);
+        }
       }
     },
     async getPayloadForTokenPurchase() {
