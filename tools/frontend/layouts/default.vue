@@ -3,27 +3,24 @@
     <UtilLoading v-if="loading" />
     <div class="flex items-center pl-56 h-28 fixed z-20 bg-white border-b border-solid border-gray-400 w-full">
       <div>
-        <div class="text-2xl font-bold">API動作確認</div>
-        <div class="text-xs text-gray-600">
-          <div>
-          アドレス: {{ address ? address : '-' }}
+        <div class="flex">
+          <div class="p-2 bg-green-50 rounded-lg text-xs mx-2">
+            <p v-if="tokenName && symbol" class="text-sm font-semibold">{{ tokenName }}:{{ symbol }}</p>
+            <p :class="{'highlight': highlight}">自分のトークン残高: {{ myTokenBalance ? myTokenBalance : '-' }}</p>
+            <p>ガチャコントラクト保有トークン: {{ gachaVendorTokenBalance ? gachaVendorTokenBalance : '-' }}</p>
+            <p>ガチャマスターウォレット保有トークン: {{ gachaWalletTokenBalance ? gachaWalletTokenBalance : '-' }}</p>
           </div>
-          <div>
-            ETH: {{ etherBalance ? etherBalance : '-' }}
+          <div class="p-2 bg-blue-50 rounded-lg text-xs mx-2">
+            <p>自分のETH残高: {{ myEtherBalance ? myEtherBalance : '-' }}</p>
+            <p>ガチャコントラクト保有ETH: {{ gachaVendorEtherBalance ? gachaVendorEtherBalance : '-' }}</p>
           </div>
-          <div>
-            {{ symbol ? symbol : '-' }}トークン: {{ balance ? balance : '-' }}
-          </div>
-          <div>
-            選択中のユーザー: {{ token ? token : '-' }}
-          </div>
-          <div>
-            選択中のガチャ: {{ gachaId ? gachaId : '-' }}
+           <div class="p-2 bg-gray-100 rounded-lg text-xs">
+            <p class="truncate">me: {{ myWalletAddress ? myWalletAddress : '-' }}</p>
+            <p class="truncate">token contract: {{ tokenContractAddress ? tokenContractAddress : '-' }}</p>
+            <p class="truncate">gacha contract: {{ vendorContractAddress ? vendorContractAddress : '-' }}</p>
+            <p class="truncate">gacha wallet: {{ gachaWalletAddress ? gachaWalletAddress : '-' }}</p>
           </div>
         </div>
-      </div>
-      <div v-if="!isConnected" class="ml-auto w-auto pr-5">
-        <button class="bg-gray-400 hover:bg-gray-700 text-xs cursor-pointer rounded-sm p-1 text-white" @click="connectToMetamask">Metamaskに接続</button>
       </div>
     </div>
     <div class="relative">
@@ -39,24 +36,14 @@
 </style>
 
 <script>
-import { ethers } from "ethers";
 import { mapGetters, mapActions } from 'vuex'
-// import ABI_JSON from "../static/abi.json"
-import CONTRACT_ABI_JSON from "../static/contractAbi.json"
-
-const tokenContractAddress = '0x5Ef32351B273eECA76d4e2B0305078A3De082d6F'
-
+import { tokenABI, vendorABI } from '../vendorAbi';
 export default {
   data() {
     return {
-      abi: CONTRACT_ABI_JSON,
-      provider: null,
-      accounts: [],
-      balance: null,
-      address: null,
-      symbol: null,
-      etherBalance: null,
-      loading: false
+      loading: false,
+      vendorAbi: vendorABI,
+      tokenAbi: tokenABI,
     }
   },
   computed: {
@@ -67,57 +54,36 @@ export default {
       'gachaId',
       'token'
     ]),
-  },
-  async mounted () {
-    await this.changeConnectionStatus({ isConnected: false })
-    try {
-      if (typeof window.ethereum !== 'undefined') {
-        console.log('MetaMask is installed!')
-        console.log(window.ethereum.selectedAddress)
-      }
-    } catch (e) {
-      console.log(e)
-    }
-  },
-  methods: {
-    ...mapActions('token', [
-      'changeConnectionStatus'
+    ...mapGetters('web3', [
+      'tokenContractAddress',
+      'vendorContractAddress',
+      'gachaWalletAddress',
+      'myWalletAddress',
+      'myTokenBalance',
+      'gachaVendorTokenBalance',
+      'gachaWalletTokenBalance',
+      'symbol',
+      'tokenName',
+      'myEtherBalance',
+      'gachaVendorEtherBalance',
+      'tokenContract',
+      'highlight'
     ]),
-    async connectToMetamask () {
-      try {
-        if(!window.ethereum) return
-        this.accounts = await window.ethereum.request({ method: 'eth_requestAccounts' })
-        const provider = new ethers.providers.Web3Provider(window.ethereum)
-        provider.getBalance("0x63C7a33D940113c8D9634FfF125efA564aA4cc0c").then((result)=>{
-          this.etherBalance = ethers.utils.formatEther(result)
-        })
-        const signer = await provider.getSigner()
-        this.address = await signer.getAddress()
-        console.log(provider)
-        const contract = new ethers.Contract(tokenContractAddress, this.abi, provider)
-        console.log('contract')
-        console.log(contract)
-        const result = (await contract.balanceOf(this.address)).toString()
-        this.symbol = await contract.symbol()
-        this.balance = await ethers.utils.formatUnits(result)
-
-        await contract.on("Transfer", async (from, to, value, event) => {
-          this.loading = true
-          let info = {
-            from: from,
-            to: to,
-            value: ethers.utils.formatUnits(value),
-            data: event,
-          };
-          const b = (await contract.balanceOf(this.address)).toString()
-          this.balance = ethers.utils.formatUnits(b)
-          this.loading = false
-        })
-        await this.changeConnectionStatus({ isConnected: true })
-      } catch (e) {
-        console.log(e)
-      }
-    }
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.highlight {
+  color: red;
+  font-weight: 700;
+  animation: fadein-anim 6s linear forwards;
+}
+
+@keyframes fadein-anim {
+  100% {
+    font-weight: 400;
+    color: black;
+  }
+}
+</style>
