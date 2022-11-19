@@ -26,16 +26,10 @@ class Web3Util {
   }
 
   static tokenContract(contractAddress) {
-    console.log('contractAddress')
-    console.log(contractAddress)
     const tokenContract = this.createContract(tokenABI, contractAddress)
     return tokenContract
   }
 
-  // static test2 () {
-  //   const test = this.test()
-  //   console.log(test)
-  // }
 }
 
 export default (context, inject) => {
