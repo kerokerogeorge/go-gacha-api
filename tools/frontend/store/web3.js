@@ -1,8 +1,11 @@
 
 
 export const state = () => ({
-  tokenContractAddress: '0x6a7edAd9c7f49Bf215Add73e5d8F8Cb550177297',
-  vendorContractAddress: '0x7dBa3cc9bDf7B3F79dcDD90B0c19768190a5aC5b',
+  // @USAToken
+  // tokenContractAddress: '0x6a7edAd9c7f49Bf215Add73e5d8F8Cb550177297',
+  // vendorContractAddress: '0x7dBa3cc9bDf7B3F79dcDD90B0c19768190a5aC5b',
+  tokenContractAddress: '0x8B20e8B064CB5dd72CA8990aF939CEF8c1eAB1Ba',
+  vendorContractAddress: '0x305b8C435Ed44202139b146EfD854D270522dcA3',
   gachaWalletAddress: '0xec64414617F2B65bB4a7adD57e82a1c5CF53B328',
   myWalletAddress: null,
   tokenBalance: {

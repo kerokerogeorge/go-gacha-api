@@ -40,7 +40,7 @@
           <p class="text-gray-500">please draw gacha</p>
         </template>
         <template v-else-if="loading && fetched">
-          <p class="text-blue-500">fetching...</p>
+          <p class="text-blue-500">pending...</p>
         </template>
         <template v-else-if="!loading && fetched && !isError">
           <p class="text-green-500">fetch finished</p>
@@ -71,7 +71,16 @@
               <div class="w-1/12">{{ c.characterId }}</div>
               <div class="w-2/12">{{ c.name }}</div>
               <div class="w-2/12">{{ c.emissionRate }}%</div>
-              <div class="w-3/12">{{ c.status }}</div>
+              <div
+                class="w-3/12 font-bold italic"
+                :class="{
+                  'text-red-500': c.status === 'failed',
+                  'text-blue-500': c.status === 'pending',
+                  'text-green-500': c.status === 'success',
+                }"
+              >
+                {{ c.status }}
+              </div>
               <div class="relative border border-solid border-gray-400">
                 <img :src="c.imgUrl" alt="pokemon" class="w-20 h-20" />
                 <div class="absolute text-xs bottom-2 px-2 w-full bg-gray-400 text-white bg-opacity-80">{{ c.name }}</div>
@@ -92,10 +101,10 @@ import smartContractRepository from '~/repositories/smartContractRepository'
 import Web3 from 'web3';
 const web3 = new Web3(Web3.givenProvider);
 
-const tokenContractAddress = '0x6a7edAd9c7f49Bf215Add73e5d8F8Cb550177297'
-const vendorContractAddress = '0x7dBa3cc9bDf7B3F79dcDD90B0c19768190a5aC5b'
-const myAddress = '0x6941cee0e87cb8ABE7A1985bf24c4f54CFeE9785'
-const toAddress = '0xec64414617F2B65bB4a7adD57e82a1c5CF53B328'
+// const tokenContractAddress = '0x6a7edAd9c7f49Bf215Add73e5d8F8Cb550177297'
+// const vendorContractAddress = '0x7dBa3cc9bDf7B3F79dcDD90B0c19768190a5aC5b'
+// const myAddress = '0x6941cee0e87cb8ABE7A1985bf24c4f54CFeE9785'
+// const toAddress = '0xec64414617F2B65bB4a7adD57e82a1c5CF53B328'
 
 export default {
   data () {
@@ -105,12 +114,6 @@ export default {
       loading: false,
       fetched: false,
       transaction: null,
-      addresses: {
-        tokenContractAddress: tokenContractAddress,
-        vendorContractAddress: vendorContractAddress,
-        myAddress: myAddress,
-        toAddress: toAddress
-      },
       userCharactersIds: null,
       vendorAbi: vendorABI,
       contract: null,
@@ -138,16 +141,17 @@ export default {
       'tokenContract',
       'myWalletAddress',
       'vendorContractAddress',
-      'gachaWalletAddress'
+      'gachaWalletAddress',
+      'tokenContractAddress'
     ]),
   },
-  async mounted () {
-    try {
-      this.contract = new web3.eth.Contract(this.vendorAbi, vendorContractAddress);
-    } catch (e) {
-      console.log(e)
-    }
-  },
+  // async mounted () {
+  //   try {
+  //     this.contract = new web3.eth.Contract(this.vendorAbi, this.vendorContractAddress);
+  //   } catch (e) {
+  //     console.log(e)
+  //   }
+  // },
   methods: {
     ...mapActions('gacha', [
       'selectGachaId',
@@ -191,9 +195,9 @@ export default {
         const transferAmount = 1 * this.times
         console.log('transferAmount: ', transferAmount)
         const req = {
-          fromAddress: myAddress,
-          toAddress: toAddress,
-          contractAddress: tokenContractAddress,
+          fromAddress: this.myWalletAddress,
+          toAddress: this.gachaWalletAddress,
+          contractAddress: this.tokenContractAddress,
           amount: Number(web3.utils.toWei(transferAmount.toString(), "ether"))
         }
         const { data } = await smartContractRepository.getTransferTokenTransactionPayload(req)
@@ -281,8 +285,8 @@ export default {
     async getPayloadForTokenPurchase() {
       try {
         const req = {
-          fromAddress: myAddress,
-          contractAddress: vendorContractAddress,
+          fromAddress: this.myWalletAddress,
+          contractAddress: this.vendorContractAddress,
         }
         const { data } = await smartContractRepository.getBuyTokenTransactionPayload(req)
         return data.transactionPayload

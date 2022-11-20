@@ -117,7 +117,6 @@ export default {
           this.totalFixedRate += parseFloat(data.toFixed(2))
           return c
         })
-        await this.selectGachaId({ gachaId: gachaId })
       } catch (e) {
         console.log(e)
       } finally {
