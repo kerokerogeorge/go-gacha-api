@@ -211,12 +211,10 @@ export default {
       }
     },
     async drawGachaWithTransaction () {
-      console.log('called')
       this.fetched = true
       this.loading = true
       this.isError = false
       try {
-        console.log('called2')
         const transferAmount = 1 * this.times
         const params = {
           times: Number(this.times),
@@ -225,14 +223,12 @@ export default {
           contractAddress: this.tokenContractAddress,
           amount: Number(web3.utils.toWei(transferAmount.toString(), "ether"))
         }
-        console.log('params')
-        console.log(params)
         const { data } = await gachaRepository.drawWithTransaction(this.token, this.gachaId, params)
-        console.log('data:', data)
         this.receipt = data.receipt
         this.transaction = `https://goerli.etherscan.io/tx/${data.transaction}`
         this.characters = data.result
       } catch (e) {
+        console.error(e)
         this.isError = true
       } finally {
         await this.fetchTokenBalance()

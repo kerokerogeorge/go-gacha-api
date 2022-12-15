@@ -13,6 +13,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/gin-gonic/gin"
+	storage "github.com/kerokerogeorge/go-gacha-api/tools/contracts"
 	"golang.org/x/crypto/sha3"
 )
 
@@ -155,8 +156,33 @@ func (er *ethereumRepository) BuyToken(ctx *gin.Context, from string, contract s
 	return tx, nil
 }
 
+func (er *ethereumRepository) CheckAccountTokenBalance(from string, contract string, transferAmountOfToken *big.Int) (bool, error) {
+	tokenAddress := common.HexToAddress(contract)
+
+	instance, err := storage.NewContract(tokenAddress, er.ethclient)
+	if err != nil {
+		return false, err
+	}
+
+	address := common.HexToAddress(from)
+	balance, err := instance.BalanceOf(&bind.CallOpts{}, address)
+	if err != nil {
+		return false, err
+	}
+
+	var hasEnoughBalance bool
+	balanceUint64 := balance.Uint64()
+	transferAmountOfTokenUint64 := transferAmountOfToken.Uint64()
+	if balanceUint64 >= transferAmountOfTokenUint64 {
+		hasEnoughBalance = true
+	} else {
+		hasEnoughBalance = false
+	}
+
+	return hasEnoughBalance, nil
+}
+
 func (er *ethereumRepository) RawTransaction(ctx *gin.Context, from string, to string, contract string, transferAmountOfToken *big.Int) (string, *types.Receipt, error) {
-	log.Println(transferAmountOfToken)
 	privateKey, err := crypto.HexToECDSA(os.Getenv("PRIVATE_KEY"))
 	if err != nil {
 		return "", nil, err

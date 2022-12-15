@@ -2,7 +2,6 @@ package usecase
 
 import (
 	"errors"
-	"log"
 	"math"
 	"math/big"
 	"strconv"
@@ -224,7 +223,14 @@ func (gu *gachaUsecase) DrawWithTransaction(ctx *gin.Context, gachaId string, ti
 		return nil, "", nil, err
 	}
 
-	log.Println("1")
+	hasEnoughBalance, err := gu.ethereumRepo.CheckAccountTokenBalance(from, contract, amount)
+	if err != nil {
+		return nil, "", nil, err
+	}
+
+	if !hasEnoughBalance {
+		return nil, "", nil, errors.New("not enough token balance")
+	}
 	tx, receipt, err := gu.ethereumRepo.RawTransaction(ctx, from, to, contract, amount)
 	if err != nil {
 		return nil, "", receipt, err

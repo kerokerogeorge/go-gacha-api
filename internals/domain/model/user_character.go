@@ -42,7 +42,7 @@ func NewUserCharacter(userId string, characterId string, imgUrl string, emission
 		CharacterId:  characterId,
 		ImgUrl:       imgUrl,
 		EmissionRate: emissionRate,
-		Status:       CharacterStatusPending,
+		Status:       CharacterStatusSuccess,
 		CreatedAt:    now,
 		UpdatedAt:    now,
 	}, nil

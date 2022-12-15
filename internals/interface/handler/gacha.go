@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"log"
 	"math/big"
 	"net/http"
 
@@ -152,7 +153,7 @@ func (gh *gachaHandler) Draw(c *gin.Context) {
 
 	results, err := gh.gachaUsecase.Draw(c, c.Param("gachaId"), req.Times, key)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -193,7 +194,7 @@ func (gh *gachaHandler) ListResult(c *gin.Context) {
 
 	results, err := gh.gachaUsecase.ListHistory(c, key)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -226,7 +227,8 @@ func (gh *gachaHandler) DrawWithTransaction(c *gin.Context) {
 
 	results, tx, receipt, err := gh.gachaUsecase.DrawWithTransaction(c, c.Param("gachaId"), req.Times, key, req.FromAddress, req.ToAddress, req.ContractAddress, req.Amount)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		log.Println(err)
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
