@@ -34,4 +34,14 @@ export default {
     },
     )
   },
+  drawWithTransaction (token, gachaId, params) {
+    console.log('called!!')
+    return repository.post(`${resource}/draw_with_transaction/${gachaId}`,
+    params,
+    {
+      headers: {
+        'x-token': `${token}`
+      }
+    })
+  },
 }

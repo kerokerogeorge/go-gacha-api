@@ -33,12 +33,13 @@ func SetApiRoutes(
 
 	gacha := e.Group("/gacha")
 	{
-		gacha.GET("/list", gh.List)           // キャラクター一覧取得API
-		gacha.GET("/result", gh.ListResult)   // キャラ排出履歴一覧取得API
-		gacha.POST("", gh.Create)             // ガチャ作成API
-		gacha.GET("/:gachaId", gh.Get)        // 一件のガチャ取得API
-		gacha.POST("/draw/:gachaId", gh.Draw) // ガチャ実行API
-		gacha.DELETE("/:gachaId", gh.Delete)  // ガチャ削除API
+		gacha.GET("/list", gh.List)                                           // キャラクター一覧取得API
+		gacha.GET("/result", gh.ListResult)                                   // キャラ排出履歴一覧取得API
+		gacha.POST("", gh.Create)                                             // ガチャ作成API
+		gacha.GET("/:gachaId", gh.Get)                                        // 一件のガチャ取得API
+		gacha.POST("/draw/:gachaId", gh.Draw)                                 // ガチャ実行API
+		gacha.POST("/draw_with_transaction/:gachaId", gh.DrawWithTransaction) // ガチャ実行API
+		gacha.DELETE("/:gachaId", gh.Delete)                                  // ガチャ削除API
 	}
 	userCharacter := e.Group("/user_character")
 	{

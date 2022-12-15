@@ -56,7 +56,7 @@ func NewGin(e *gin.Engine) *gin.Engine {
 	// usecase
 	uu := usecase.NewUserUsecase(ur, ucr)
 	cu := usecase.NewCharacterUsecase(cr, cerr, ucr)
-	gu := usecase.NewGachaUsecase(gr, ur, ucr, cr, cerr)
+	gu := usecase.NewGachaUsecase(gr, ur, ucr, cr, cerr, ecr)
 	ucu := usecase.NewUserCharacterUsecase(ucr)
 	ctu := usecase.NewContractUsecase(ecr)
 
