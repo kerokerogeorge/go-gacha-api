@@ -1,8 +1,10 @@
 package handler
 
 import (
+	"math/big"
 	"net/http"
 
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/gin-gonic/gin"
 	"github.com/kerokerogeorge/go-gacha-api/internals/domain/model"
 	"github.com/kerokerogeorge/go-gacha-api/internals/usecase"
@@ -13,6 +15,7 @@ type GachaHandler interface {
 	List(c *gin.Context)
 	Get(c *gin.Context)
 	Draw(c *gin.Context)
+	DrawWithTransaction(c *gin.Context)
 	Delete(c *gin.Context)
 	ListResult(c *gin.Context)
 }
@@ -35,6 +38,20 @@ type DrawGachaRequest struct {
 }
 type DrawGachaResponse struct {
 	Result []*model.Result `json:"result"`
+}
+
+type DrawGachaWithTransactionRequest struct {
+	Times           int      `json:"times"`
+	FromAddress     string   `json:"fromAddress"`
+	ToAddress       string   `json:"toAddress"`
+	ContractAddress string   `json:"contractAddress"`
+	Amount          *big.Int `json:"amount"`
+}
+
+type DrawGachaWithTransactionResponse struct {
+	Result      []*model.Result `json:"result"`
+	Transaction string          `json:"transaction"`
+	Receipt     *types.Receipt  `json:"receipt"`
 }
 
 type ResultHistoryResponse struct {
@@ -182,5 +199,40 @@ func (gh *gachaHandler) ListResult(c *gin.Context) {
 
 	c.JSON(http.StatusOK, &ResultHistoryResponse{
 		Result: results,
+	})
+}
+
+// @Summary ガチャを実行するAPI
+// @Router /gacha/draw_with_transaction/{gachaId} [post]
+// @Description ガチャを実行し、キャラクターを取得します
+// @Accept application/json
+// @Param x-token header string true "x-token"
+// @Param gachaId path string true "gachaId"
+// @Param times body string true "ガチャを実行する回数"
+// @Success 200 {object} DrawGachaResponse
+// @Failure 400 {object} helper.Error
+func (gh *gachaHandler) DrawWithTransaction(c *gin.Context) {
+	var req DrawGachaWithTransactionRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	key := c.Request.Header.Get("x-token")
+	if key == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "token required"})
+		return
+	}
+
+	results, tx, receipt, err := gh.gachaUsecase.DrawWithTransaction(c, c.Param("gachaId"), req.Times, key, req.FromAddress, req.ToAddress, req.ContractAddress, req.Amount)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err})
+		return
+	}
+
+	c.JSON(http.StatusOK, &DrawGachaWithTransactionResponse{
+		Result:      results,
+		Transaction: tx,
+		Receipt:     receipt,
 	})
 }

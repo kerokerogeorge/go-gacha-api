@@ -31,7 +31,7 @@
             <button class="button button-blue" data-ripple-light="true" @click="recieveToken">RECEIVE TOKEN</button>
           </div>
           <div>
-            <button class="button button-green" data-ripple-light="true" :disabled="!gachaId || !token || times === 0" @click="drawGacha">draw gacha</button>
+            <button class="button button-green" data-ripple-light="true" :disabled="!gachaId || !token || times === 0" @click="drawGachaWithTransaction">draw gacha</button>
           </div>
         </div>
       </div>
@@ -53,8 +53,28 @@
         </template>
       </div>
     </div>
+    <template v-if="receipt">
+      <div class="flex pt-60 px-5 w-full text-xs text-gray-600">
+        <div class="w-2/12">
+          <p>Status</p>
+          <p>Block Number</p>
+          <p>Block Hash</p>
+          <p>Gas Used</p>
+          <p>Transaction Index</p>
+          <p>Transaction Type</p>
+        </div>
+        <div>
+          <p>{{ convertToString(receipt.status) }}</p>
+          <p>{{ convertToString(receipt.blockNumber) }}</p>
+          <p>{{ receipt.blockHash }}</p>
+          <p>{{ convertToString(receipt.gasUsed) }}</p>
+          <p>{{ convertToString(receipt.transactionIndex) }}</p>
+          <p>{{ convertToString(receipt.type) }}</p>
+        </div>
+      </div>
+    </template>
     <template v-if="characters.length > 0">
-      <div class="pt-60 px-5 w-full">
+      <div class="px-5 w-full">
         <div class="mt-10 border border-solid border-gray-500 text-gray-700 text-sm">
           <div class="flex py-2 border-b border-solid border-gray-500">
             <div class="ml-3 w-10" />
@@ -125,7 +145,8 @@ export default {
         user: 'select user',
         gacha: 'select gacha'
       },
-      highlight: false
+      highlight: false,
+      receipt: null
     }
   },
   computed: {
@@ -160,6 +181,9 @@ export default {
     ...mapActions('web3', [
       'setTokenBalance'
     ]),
+    convertToString(value) {
+      return web3.utils.toBN(value).toString()
+    },
     async drawGacha () {
       this.fetched = true
       this.loading = true
@@ -169,12 +193,47 @@ export default {
         const payload = await this.getTransferTokenTransactionPayload()
         const request = await this.createTransaction(payload)
         const tx = await web3.eth.sendTransaction(request)
-        console.log('tx', tx)
         await this.updateStatus(this.userCharactersIds, "success")
         this.transaction = `https://goerli.etherscan.io/tx/${tx.transactionHash}`
       } catch (e) {
         this.isError = true
         await this.updateStatus(this.userCharactersIds, "failed")
+      } finally {
+        await this.fetchTokenBalance()
+        this.times = 0
+        this.loading = false
+        if (!this.isError) {
+          await this.$store.commit('web3/setHighlight', true)
+          setTimeout(async () => {
+            await this.$store.commit('web3/setHighlight', false)
+          }, 6000);
+        }
+      }
+    },
+    async drawGachaWithTransaction () {
+      console.log('called')
+      this.fetched = true
+      this.loading = true
+      this.isError = false
+      try {
+        console.log('called2')
+        const transferAmount = 1 * this.times
+        const params = {
+          times: Number(this.times),
+          fromAddress: this.myWalletAddress,
+          toAddress: this.gachaWalletAddress,
+          contractAddress: this.tokenContractAddress,
+          amount: Number(web3.utils.toWei(transferAmount.toString(), "ether"))
+        }
+        console.log('params')
+        console.log(params)
+        const { data } = await gachaRepository.drawWithTransaction(this.token, this.gachaId, params)
+        console.log('data:', data)
+        this.receipt = data.receipt
+        this.transaction = `https://goerli.etherscan.io/tx/${data.transaction}`
+        this.characters = data.result
+      } catch (e) {
+        this.isError = true
       } finally {
         await this.fetchTokenBalance()
         this.times = 0
@@ -273,6 +332,7 @@ export default {
         alert("Error purchasing tokens");
       } finally {
         this.loading = false
+        this.receipt = null
         await this.fetchTokenBalance()
         if (!this.isError) {
           await this.$store.commit('web3/setHighlight', true)
